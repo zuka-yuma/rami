@@ -13,7 +13,17 @@ if (!jwtSecret) {
 }
 
 export const config = {
-    jwtSecret: jwtSecret,
+    jwt: {
+        secret: jwtSecret,
+        access: {
+            algorithm: "HS256",
+            expiresIn: "15m"
+        } as const,
+        refresh: {
+            algorithm: "HS256",
+            expiresIn: "7d"
+        } as const
+    },
     port: parseInt(port),
     databaseURL: databaseURL
 }
