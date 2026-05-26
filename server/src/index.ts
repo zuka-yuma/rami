@@ -5,6 +5,7 @@ import { config } from './config.js'
 import { AppError } from './utils/errors.js'
 import { authRoutes } from './modules/auth/auth.routes.js'
 import type { TypeBoxTypeProvider } from '@fastify/type-provider-typebox'
+import { nodesRoutes } from './modules/nodes/nodes.routes.js'
 
 const server = fastify().withTypeProvider<TypeBoxTypeProvider>()
 
@@ -18,7 +19,7 @@ server.setErrorHandler((error, request, reply) => {
 
 server.register(cors, {
     origin: 'http://localhost:5173',
-    methods: ['GET', 'POST']
+    methods: ['GET', 'POST', 'DELETE', 'PATCH']
 })
 
 server.register(cookie, {
@@ -27,6 +28,10 @@ server.register(cookie, {
 
 server.register(authRoutes, {
     prefix: '/api/auth'
+})
+
+server.register(nodesRoutes, {
+    prefix: '/api/nodes'
 })
 
 server.get('/api/health', async (request, reply) => {
