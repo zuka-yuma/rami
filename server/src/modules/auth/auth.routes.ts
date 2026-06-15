@@ -3,13 +3,19 @@ import type { registerSchemaType, loginSchemaType } from './auth.schema.js'
 import { registerSchema, loginSchema } from './auth.schema.js'
 import type { FastifyInstance, FastifyPluginOptions } from 'fastify'
 import { UnauthorizedError } from '../../utils/errors.js'
+import { isProduction } from '../../config.js'
 
 export const authRoutes = async (fastify: FastifyInstance, opts: FastifyPluginOptions) => {
     fastify.post<{ Body: registerSchemaType}>('/register', { schema: { body: registerSchema }}, 
         async (request, reply) => {
             const { email, name, password } = request.body
-            const atoken = await register(email, name, password)
-            reply.status(201).send({ accessToken: atoken })
+            const tokens = await register(email, name, password)
+            reply.setCookie('token', tokens.rtoken, {
+                httpOnly: true,
+                secure: isProduction,
+                sameSite: 'strict'
+            })
+            reply.status(201).send({ accessToken: tokens.atoken })
         }
     )
 
@@ -19,7 +25,7 @@ export const authRoutes = async (fastify: FastifyInstance, opts: FastifyPluginOp
             const tokens: { atoken: string, rtoken: string} = await login(email, password)
             reply.setCookie('token', tokens.rtoken, {
                 httpOnly: true,
-                secure: true,
+                secure: isProduction,
                 sameSite: 'strict'
             })
             reply.status(200).send({ accessToken: tokens.atoken })

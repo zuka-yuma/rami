@@ -20,7 +20,17 @@ export async function register(email: string, username: string, password: string
             }
         })
         const atoken = generateAccessToken(userData.id)
-        return atoken
+        const rtoken = generateRefreshToken(userData.id)
+        const limit = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+        await prisma.token.create({
+                data: {
+                    token: rtoken, 
+                    userId: userData.id,
+                    limit: limit
+                }
+            })
+            const tokens: { atoken: string, rtoken: string } = { atoken: atoken, rtoken: rtoken }
+            return tokens
     } else {
         throw new ConflictError()
     }
