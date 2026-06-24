@@ -15,9 +15,16 @@ export async function register(email: string, username: string, password: string
     })
 }
 
-export function logout() {
-    client.post("/auth/logout")
-    .then(_req => {
-        setAccessToken(null)
+export async function logout() {
+    return await client.post("/auth/logout")
+    .then(() =>{setAccessToken(null)}
+        
+    )
+}
+
+export async function getMe() {
+    return await client.get("/auth/me")
+    .then(res => {
+        return res.data
     })
 }
