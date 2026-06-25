@@ -77,3 +77,12 @@ export async function refresh(token: string) {
 export async function logout(token: string) {
     await prisma.token.deleteMany({where: { token } })
 }
+
+export async function getUser(id: string) {
+    const user = await prisma.user.findUnique({ where: { id }})
+    if (user == null) {
+        throw new UnauthorizedError()
+    } else {
+        return { id: user.id, email: user.email, name: user.name }
+    }
+}

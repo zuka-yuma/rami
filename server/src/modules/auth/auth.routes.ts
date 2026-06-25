@@ -1,9 +1,10 @@
-import { register, login, refresh, logout } from './auth.service.js'
+import { register, login, refresh, logout, getUser } from './auth.service.js'
 import type { registerSchemaType, loginSchemaType } from './auth.schema.js'
 import { registerSchema, loginSchema } from './auth.schema.js'
 import type { FastifyInstance, FastifyPluginOptions } from 'fastify'
 import { UnauthorizedError } from '../../utils/errors.js'
 import { isProduction } from '../../config.js'
+import { authenticate } from '../../plugins/authenticate.js'
 
 export const authRoutes = async (fastify: FastifyInstance, opts: FastifyPluginOptions) => {
     fastify.post<{ Body: registerSchemaType}>('/register', { schema: { body: registerSchema }}, 
@@ -47,6 +48,14 @@ export const authRoutes = async (fastify: FastifyInstance, opts: FastifyPluginOp
             if (!rtoken) throw new UnauthorizedError()
             await logout(rtoken)
             reply.status(204).send()
+        }
+    )
+
+    fastify.get('/me', { preHandler: [authenticate] }, 
+        async (request,reply) => {
+            const userId = request.user.userId
+            const user = await getUser(userId)
+            reply.status(200).send( { id: user.id, email: user.email, name: user.name } )
         }
     )
 }
