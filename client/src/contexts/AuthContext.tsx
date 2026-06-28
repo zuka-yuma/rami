@@ -49,7 +49,7 @@ export const AuthProvider = ( props: { children: ReactNode } ) => {
                 await refresh()
                 const me = await authApi.getMe()
                 setUser(me)
-            } catch {}
+            } catch { /* refresh 失敗時は未ログイン扱い */}
             setLoading(false)
         } 
         init()
@@ -70,4 +70,5 @@ export const AuthProvider = ( props: { children: ReactNode } ) => {
     )
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => useContext(AuthContext)
