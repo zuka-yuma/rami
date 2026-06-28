@@ -1,14 +1,17 @@
 import { useAuth } from './contexts/AuthContext'
 import LoginForm from './components/LoginForm'
+import { TreeProvider } from './contexts/TreeContext'
+import TreeView from './components/TreeView'
+import Toolbar from './components/Toolbar'
 
 function App() {
-  const {user, loading, logout} = useAuth()
+  const { user, loading } = useAuth()
 
-  if (loading === true) return (
+  if (loading) return (
     <div>
       <p>Loading...</p>
     </div>
-    )
+  )
 
   if (!user) return (
     <div>
@@ -17,8 +20,12 @@ function App() {
   )
 
   return (
-    <div><p>ログイン中: {user.name}さん</p>
-      <button onClick={logout}>logout</button></div>
+    <TreeProvider>
+      <Toolbar />
+      <div className="p-4">
+        <TreeView />
+      </div>
+    </TreeProvider>
   )
 }
 

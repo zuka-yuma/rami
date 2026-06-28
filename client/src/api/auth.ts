@@ -2,16 +2,16 @@ import { client, setAccessToken } from './client.js'
 
 export async function login(email: string, password: string) {
     return await client.post("/auth/login", {email: email, password: password})
-    .then(req => {
-        setAccessToken(req.data.accessToken)
-        console.log(req.data)
+    .then(res => {
+        setAccessToken(res.data.accessToken)
+        console.log(res.data)
     })
 }
 
 export async function register(email: string, username: string, password: string) {
     return await client.post("/auth/register", {email: email, name: username, password: password})
-    .then(req => {
-        setAccessToken(req.data.accessToken)
+    .then(res => {
+        setAccessToken(res.data.accessToken)
     })
 }
 
