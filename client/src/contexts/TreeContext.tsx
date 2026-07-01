@@ -11,8 +11,8 @@ interface ITreeContext {
     moveNode: (id: string, input: MoveNodeInput) => Promise<void>
     toggleNodeType: (id: string, input: ToggleTypeInput) => Promise<void>
     addSteps: (parentId: string, input: AddStepsInput) => Promise<void>
-    reorderSteps: (parentId: string, input: ReorderInput) => Promise<void>
-    reorderNodes: (parentId: string, input: ReorderInput) => Promise<void>
+    reorderSteps: (parentId: string | null, input: ReorderInput) => Promise<void>
+    reorderNodes: (parentId: string | null, input: ReorderInput) => Promise<void>
 }
 
 const TreeContext = createContext<ITreeContext>({

@@ -35,10 +35,10 @@ export async function addSteps(parentId: string, body: AddStepsInput) {
     .then(res => res.data)
 }
 
-export async function reorderSteps(parentId: string, body: ReorderInput) {
+export async function reorderSteps(parentId: string | null, body: ReorderInput) {
     return await client.patch(`/nodes/${parentId}/reorder-steps`, body)
 }
 
-export async function reorderNodes(parentId: string, body: ReorderInput) {
+export async function reorderNodes(parentId: string | null, body: ReorderInput) {
     return await client.post(`/nodes/${parentId}/reorder-nodes`, body)
 }

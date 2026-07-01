@@ -7,6 +7,7 @@ import { CSS } from "@dnd-kit/utilities";
 import type { TreeNode as TreeNodeType, Status } from "../types"
 import { useState } from "react"
 import { useTreeContext } from "../contexts/TreeContext"
+import { useAddNode } from "../contexts/AddNodeContext"
 import NodeRenderer from "./NodeRenderer"
 import NodeDetail from "./NodeDetail"
 
@@ -39,24 +40,14 @@ const nextStatus = (status: Status): Status => {
 }
 
 export default function TreeNode({ node }: Props) {
-    const { addNode, updateNode, removeNode } = useTreeContext()
+    const { updateNode, removeNode } = useTreeContext()
+    const openAdd = useAddNode()
     const [editing, setEditing] = useState<boolean>(false)
     const [draft, setDraft] = useState<string>(node.title)
     const [detailOpen, setDetailOpen] = useState<boolean>(false)
 
     const handleStatusClick = async () => {
         await updateNode(node.id, { status: nextStatus(node.status)})
-    }
-
-    const handleAddChild = async () => {
-        const title = window.prompt("子ノードのタイトル")
-        if (!title) return
-        await addNode({
-            title,
-            parentId: node.id,
-            nodeType: "task",
-            priority: "medium",
-        })
     }
 
     const handleRemove = async () => {
@@ -88,7 +79,7 @@ export default function TreeNode({ node }: Props) {
     return (
         // DnD: useSortable の setNodeRef を ref に、transform/transition を style に、
         // isDragging のとき opacity-40 を付ける
-        <li className={`my-1 ${isDragging ? "opacity-40" : ""}`}>
+        <li className={`flex flex-col items-start ${isDragging ? "opacity-40" : ""}`}>
             <div className="flex items-center gap-2"
             ref={setNodeRef}
             style={{
@@ -145,7 +136,7 @@ export default function TreeNode({ node }: Props) {
                 <button type="button" onClick={() => setDetailOpen(!detailOpen)} className="text-xs ml-2">
                     {detailOpen ? "詳細▲" : "詳細▼"}
                 </button>
-                <button type="button" onClick={handleAddChild} className="text-xs ml-2">＋子</button>
+                <button type="button" onClick={() => openAdd(node.id)} className="text-xs ml-2">＋子</button>
                 <button type="button" onClick={handleRemove} className="text-xs text-red-500">削除</button>
             </div>
 
@@ -153,7 +144,7 @@ export default function TreeNode({ node }: Props) {
 
             {!node.collapse && node.children.length > 0 && (
                 <SortableContext items={node.children.map(children => children.id)}>
-                    <ul className="ml-4">
+                    <ul className="flex flex-col md:flex-row md:items-start gap-1 md:gap-4 ml-4 md:ml-6 mt-1 md:mt-2">
                         {node.children.map(child => (
                             <NodeRenderer key={child.id} node={child} />
                         ))}

@@ -1,64 +1,53 @@
 // アプリケーション上部のツールバー。
 // ルートにタスク/フェーズを追加するボタンと、ユーザー情報・ログアウトボタンを表示。
 
-import { useTreeContext } from "../contexts/TreeContext"
+import { useAddNode } from "../contexts/AddNodeContext"
 import { useAuth } from "../contexts/AuthContext"
-import type { NodeType } from "../types"
 
 interface Props {
     hideDone: boolean
     onToggleHideDone: () => void
+    onToggleSidebar: () => void
 }
 
-export default function Toolbar({ hideDone, onToggleHideDone }: Props) {
-    const { addNode } = useTreeContext()
+export default function Toolbar({ hideDone, onToggleHideDone, onToggleSidebar }: Props) {
+    const openAdd = useAddNode()
     const { user, logout } = useAuth()
 
-    // ルートに新規ノードを追加する共通ハンドラ。
-    // parentId を省略するとサーバー側で top-level（ルート）として作成される。
-    const handleAdd = async (nodeType: NodeType) => {
-        const title = window.prompt(`${nodeType === "task" ? "タスク" : "フェーズ"}のタイトル`)
-        if (!title) return
-        await addNode({
-            title,
-            nodeType,
-            priority: "medium",
-        })
-    }
-
     return (
-        <div className="flex items-center justify-between px-4 py-2 bg-gray-100 border-b">
-            <div className="flex gap-2">
+        <div className="flex items-center justify-between gap-2 px-3 py-2 bg-gray-100 border-b">
+            <div className="flex items-center gap-1.5 min-w-0 overflow-x-auto">
                 <button
                     type="button"
-                    onClick={() => handleAdd("task")}
-                    className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+                    onClick={onToggleSidebar}
+                    aria-label="サイドバー表示切り替え"
+                    className="md:hidden shrink-0 px-2 py-1 rounded hover:bg-gray-200"
                 >
-                    ＋ タスク追加
+                    ☰
                 </button>
                 <button
                     type="button"
-                    onClick={() => handleAdd("phase")}
-                    className="px-3 py-1 bg-purple-500 text-white rounded hover:bg-purple-600"
+                    onClick={() => openAdd()}
+                    className="shrink-0 whitespace-nowrap px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
                 >
-                    ＋ フェーズ追加
+                    ＋追加
                 </button>
                 <button
                     type="button"
                     onClick={onToggleHideDone}
-                    className={`px-3 py-1 rounded ${hideDone
+                    className={`shrink-0 whitespace-nowrap px-3 py-1 rounded ${hideDone
                         ? "bg-gray-700 text-white"
                         : "bg-gray-200 hover:bg-gray-300"}`}
                 >
-                    {hideDone ? "完了を表示" : "完了を隠す"}
+                    {hideDone ? "完了表示" : "完了を隠す"}
                 </button>
             </div>
-            <div className="flex items-center gap-3 text-sm">
-                <span>ログイン中: {user?.name}</span>
+            <div className="flex items-center gap-2 shrink-0 text-sm">
+                <span className="hidden sm:inline text-gray-600">{user?.name}</span>
                 <button
                     type="button"
                     onClick={logout}
-                    className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
+                    className="whitespace-nowrap px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
                 >
                     ログアウト
                 </button>

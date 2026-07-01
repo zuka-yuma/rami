@@ -8,6 +8,7 @@ import { CSS } from "@dnd-kit/utilities";
 import type { TreeNode as TreeNodeType, Status } from "../types"
 import { useState } from "react"
 import { useTreeContext } from "../contexts/TreeContext"
+import { useAddNode } from "../contexts/AddNodeContext"
 import StepProgress from "./StepProgress"
 import NodeRenderer from "./NodeRenderer"
 import NodeDetail from "./NodeDetail"
@@ -18,9 +19,9 @@ interface Props {
 
 const statusColor = (status: Status) => {
     switch (status) {
-        case "todo": return "bg-gray-300"
-        case "in_progress": return "bg-yellow-400"
-        case "done": return "bg-green-500"
+        case "todo": return "border-1 border-black-300"
+        case "in_progress": return "bg-green-400"
+        case "done": return "bg-gray-500"
     }
 }
 
@@ -41,24 +42,14 @@ const nextStatus = (status: Status): Status => {
 }
 
 export default function PhaseNode({ node }: Props) {
-    const { addNode, updateNode, removeNode } = useTreeContext()
+    const { updateNode, removeNode } = useTreeContext()
+    const openAdd = useAddNode()
     const [editing, setEditing] = useState<boolean>(false)
     const [draft, setDraft] = useState<string>(node.title)
     const [detailOpen, setDetailOpen] = useState<boolean>(false)
 
     const handleStatusClick = async () => {
         await updateNode(node.id, { status: nextStatus(node.status) })
-    }
-
-    const handleAddChild = async () => {
-        const title = window.prompt("ステップのタイトル")
-        if (!title) return
-        await addNode({
-            title,
-            parentId: node.id,
-            nodeType: "task",
-            priority: "medium",
-        })
     }
 
     const handleRemove = async () => {
@@ -90,7 +81,7 @@ export default function PhaseNode({ node }: Props) {
     return (
         // DnD: useSortable の setNodeRef を ref に、transform/transition を style に、
         // isDragging のとき opacity-40 を付ける
-        <li className={`my-1 ${isDragging ? "opacity-40" : ""}`}>
+        <li className={`flex flex-col items-start ${isDragging ? "opacity-40" : ""}`}>
             {/* 背景色とボーダーで phase であることを視覚的に区別 */}
             <div className="flex items-center gap-2 bg-purple-50 px-2 py-1 rounded border-l-4 border-purple-400"
             ref={setNodeRef}
@@ -149,7 +140,7 @@ export default function PhaseNode({ node }: Props) {
                 <button type="button" onClick={() => setDetailOpen(!detailOpen)} className="text-xs ml-2">
                     {detailOpen ? "詳細▲" : "詳細▼"}
                 </button>
-                <button type="button" onClick={handleAddChild} className="text-xs ml-2">＋ステップ</button>
+                <button type="button" onClick={() => openAdd(node.id)} className="text-xs ml-2">＋ステップ</button>
                 <button type="button" onClick={handleRemove} className="text-xs text-red-500">削除</button>
             </div>
 
@@ -157,10 +148,10 @@ export default function PhaseNode({ node }: Props) {
 
             {/* 展開時: 上部にプログレスライン、子ステップを番号付き (ol) で並べる */}
             {!node.collapse && node.children.length > 0 && (
-                <div className="ml-4 mt-1">
+                <div className="ml-6 mt-2">
                     <StepProgress steps={node.children} />
                     <SortableContext items={node.children.map(children => children.id)}>
-                        <ol className="ml-4 list-decimal">
+                        <ol className="flex flex-col md:flex-row md:items-start gap-1 md:gap-4 mt-1 md:mt-2">
                             {node.children.map(child => (
                                 <NodeRenderer key={child.id} node={child} />
                             ))}
