@@ -68,7 +68,8 @@ export const nodesRoutes = async (fastify: FastifyInstance, opts: FastifyPluginO
         async (request, reply) => {
             const userId = request.user.userId
             const id = request.params.id
-            await moveNode(userId, id, request.body.parentId)
+            const newParentId = request.body.parentId || null
+            await moveNode(userId, id, newParentId)
             reply.status(200).send()
         }
     )
