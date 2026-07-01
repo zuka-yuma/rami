@@ -5,7 +5,11 @@ import NodeRenderer from "./NodeRenderer";
 import { useState } from "react";
 import type { TreeNode } from "../types";
 
-export default function TreeView() {
+interface Props {
+    hideDone: boolean
+}
+
+export default function TreeView({hideDone}: Props) {
     const { tree, loading, reorderNodes, reorderSteps, moveNode } = useTreeContext()
     const [ activeId, setActiveId ] = useState<string | null>(null)
 
@@ -102,6 +106,12 @@ export default function TreeView() {
         }
     }
 
+    const filterDone = (nodes): TreeNode[] => {
+        return nodes.filter(n => n.status !== "done").map(n => ({ ...n, children: filterDone(n.children) }))
+    }
+
+    const visibleTree = hideDone ? filterDone(tree) : tree
+
     if (loading === true) return (
         <div>
             <p>Loading...</p>
@@ -122,9 +132,9 @@ export default function TreeView() {
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
         >
-            <SortableContext items={tree.map(children => children.id)}>
+            <SortableContext items={visibleTree.map(children => children.id)}>
                 <ul>
-                    {tree.map(node => (
+                    {visibleTree.map(node => (
                         <NodeRenderer key={node.id} node={node} />
                     ))}
                 </ul>

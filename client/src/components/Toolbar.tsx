@@ -5,7 +5,12 @@ import { useTreeContext } from "../contexts/TreeContext"
 import { useAuth } from "../contexts/AuthContext"
 import type { NodeType } from "../types"
 
-export default function Toolbar() {
+interface Props {
+    hideDone: boolean
+    onToggleHideDone: () => void
+}
+
+export default function Toolbar({ hideDone, onToggleHideDone }: Props) {
     const { addNode } = useTreeContext()
     const { user, logout } = useAuth()
 
@@ -37,6 +42,15 @@ export default function Toolbar() {
                     className="px-3 py-1 bg-purple-500 text-white rounded hover:bg-purple-600"
                 >
                     ＋ フェーズ追加
+                </button>
+                <button
+                    type="button"
+                    onClick={onToggleHideDone}
+                    className={`px-3 py-1 rounded ${hideDone
+                        ? "bg-gray-700 text-white"
+                        : "bg-gray-200 hover:bg-gray-300"}`}
+                >
+                    {hideDone ? "完了を表示" : "完了を隠す"}
                 </button>
             </div>
             <div className="flex items-center gap-3 text-sm">
