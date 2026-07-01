@@ -42,7 +42,6 @@ const nextStatus = (status: Status): Status => {
 
 export default function PhaseNode({ node }: Props) {
     const { addNode, updateNode, removeNode } = useTreeContext()
-    const [collapsed, setCollapsed] = useState<boolean>(node.collapse)
     const [editing, setEditing] = useState<boolean>(false)
     const [draft, setDraft] = useState<string>(node.title)
     const [detailOpen, setDetailOpen] = useState<boolean>(false)
@@ -114,8 +113,10 @@ export default function PhaseNode({ node }: Props) {
                 <span className="text-xs bg-purple-500 text-white px-2 py-0.5 rounded">Phase</span>
 
                 {node.children.length > 0 && (
-                    <button type="button" onClick={() => setCollapsed(!collapsed)}>
-                        {collapsed ? "▶︎" : "▼"}
+                    <button type="button" onClick={() => {
+                        updateNode(node.id, {collapse: !node.collapse})
+                        }}>
+                        {node.collapse ? "▶︎" : "▼"}
                     </button>
                 )}
 
@@ -155,7 +156,7 @@ export default function PhaseNode({ node }: Props) {
             {detailOpen && <NodeDetail node={node} />}
 
             {/* 展開時: 上部にプログレスライン、子ステップを番号付き (ol) で並べる */}
-            {!collapsed && node.children.length > 0 && (
+            {!node.collapse && node.children.length > 0 && (
                 <div className="ml-4 mt-1">
                     <StepProgress steps={node.children} />
                     <SortableContext items={node.children.map(children => children.id)}>

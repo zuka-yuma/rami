@@ -40,6 +40,12 @@ export function useTree() {
         )
     }
 
+    const updateTree = (children: TreeNode[], id: string, node: TreeNode) => {
+        return children.map(child =>
+            child.id === id ? {...node} : { ...child, children: updateTree(child.children, id, node)}
+        )
+    }
+
     const found = (nodes: TreeNode[], id: string): TreeNode | null => {
         for (const node of nodes) {
             if (node.id === id) return node
@@ -55,6 +61,8 @@ export function useTree() {
     }
 
     async function updateNode(id: string, input: UpdateNodeInput) {
+        const node = {...found(tree, id), ...input}
+        setTree(prev => updateTree(prev, id, node))
         await update(id, input)
         await refetch()
     }

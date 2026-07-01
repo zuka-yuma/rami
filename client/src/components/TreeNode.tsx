@@ -40,8 +40,6 @@ const nextStatus = (status: Status): Status => {
 
 export default function TreeNode({ node }: Props) {
     const { addNode, updateNode, removeNode } = useTreeContext()
-
-    const [collapsed, setCollapsed] = useState<boolean>(node.collapse)
     const [editing, setEditing] = useState<boolean>(false)
     const [draft, setDraft] = useState<string>(node.title)
     const [detailOpen, setDetailOpen] = useState<boolean>(false)
@@ -110,8 +108,10 @@ export default function TreeNode({ node }: Props) {
                 </button>
 
                 {node.children.length > 0 && (
-                    <button type="button" onClick={() => setCollapsed(!collapsed)}>
-                        {collapsed ? "▶︎" : "▼"}
+                    <button type="button" onClick={() => {
+                        updateNode(node.id, {collapse: !node.collapse})
+                        }}>
+                        {node.collapse ? "▶︎" : "▼"}
                     </button>
                 )}
 
@@ -151,7 +151,7 @@ export default function TreeNode({ node }: Props) {
 
             {detailOpen && <NodeDetail node={node} />}
 
-            {!collapsed && node.children.length > 0 && (
+            {!node.collapse && node.children.length > 0 && (
                 <SortableContext items={node.children.map(children => children.id)}>
                     <ul className="ml-4">
                         {node.children.map(child => (
