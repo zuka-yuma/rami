@@ -16,6 +16,40 @@ const selfUrgency = (node: TreeNode): Urgency => {
 
 const RANK: Record<Urgency, number> = { delay: 5, overdue: 4, in_progress: 3, todo: 2, done: 1 };
 
+const findNode = (nodes: TreeNode[], id: string): TreeNode | null => {
+    for (const n of nodes) {
+        if (n.id === id) return n;
+        const f = findNode(n.children, id);
+        if (f) return f;
+    }
+    return null;
+};
+
+// phase のステップの status 変更が順序ルール上許可されるか。
+// - 最後の done 以前(手前)は自由
+// - それより後ろ: todo→in_progress は「最後の in_progress の後の最初の todo」だけ、
+//   in_progress→done は「最後の done の後の最初の in_progress」だけ
+// phase の子でなければ常に true(自由)
+export const stepChangeAllowed = (node: TreeNode, tree: TreeNode[]): boolean => {
+    if (node.parentId == null) return true;
+    const parent = findNode(tree, node.parentId);
+    if (!parent || parent.nodetype !== "phase") return true;
+    const sib = parent.children;
+    const idx = sib.findIndex(s => s.id === node.id);
+    let lastDone = -1;
+    for (let i = 0; i < sib.length; i++) if (sib[i].status === "done") lastDone = i;
+    if (idx <= lastDone) return true;
+    if (node.status === "todo") {
+        let lastIp = -1;
+        for (let i = 0; i < sib.length; i++) if (sib[i].status === "in_progress") lastIp = i;
+        return idx === sib.findIndex((s, i) => i > lastIp && s.status === "todo");
+    }
+    if (node.status === "in_progress") {
+        return idx === sib.findIndex((s, i) => i > lastDone && s.status === "in_progress");
+    }
+    return true;
+};
+
 // 期限テキストの色。そのノード自身の期限×ステータスで決める。
 export const deadlineColor = (node: TreeNode): string => {
     if (isOverdue(node.deadline) && node.status === "in_progress") return "text-orange-400";

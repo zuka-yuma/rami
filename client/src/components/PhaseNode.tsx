@@ -5,10 +5,10 @@
 import { useSortable } from "@dnd-kit/sortable"
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import type { TreeNode as TreeNodeType, Status } from "../types"
-import { useState } from "react"
+import { useState, type MouseEvent } from "react"
 import { useTreeContext } from "../contexts/TreeContext"
 import { useAddNode } from "../contexts/AddNodeContext"
-import { subtreeUrgency, deadlineColor } from "../utils/nodeStatus"
+import { subtreeUrgency, deadlineColor, stepChangeAllowed } from "../utils/nodeStatus"
 import { useHideDone } from "../contexts/HideDoneContext"
 import { useDropIndicator } from "../contexts/DropIndicatorContext"
 import { DropLine } from "./DropLine"
@@ -49,13 +49,20 @@ const nextStatus = (status: Status): Status => {
 }
 
 export default function PhaseNode({ node, depth, headerOnly, onToggle }: Props) {
-    const { updateNode, removeNode } = useTreeContext()
+    const { tree, updateNode, removeNode } = useTreeContext()
     const openAdd = useAddNode()
     const [editing, setEditing] = useState<boolean>(false)
     const [draft, setDraft] = useState<string>(node.title)
     const [detailOpen, setDetailOpen] = useState<boolean>(false)
+    const [denied, setDenied] = useState<boolean>(false)
 
-    const handleStatusClick = async () => {
+    const handleStatusClick = async (e: MouseEvent) => {
+        // Shift+クリックは強制。通常クリックは phase ステップの順序ルールに従う
+        if (!e.shiftKey && !stepChangeAllowed(node, tree)) {
+            setDenied(true)
+            setTimeout(() => setDenied(false), 800)
+            return
+        }
         await updateNode(node.id, { status: nextStatus(node.status) })
     }
 
@@ -102,7 +109,7 @@ export default function PhaseNode({ node, depth, headerOnly, onToggle }: Props) 
         <li className={`flex flex-col items-start ${isDragging ? "opacity-40" : ""}`}>
             {/* phase は紫アクセント。子ありは sky の枠で展開可能を示す */}
             <div ref={setNodeRef}
-            className={`relative ${headerOnly ? "w-64" : "max-w-xs"} rounded bg-purple-900/40 text-slate-100 hover:bg-purple-900/60 ${dropPos === "inside" ? "ring-2 ring-sky-400 " : ""}${node.children.length > 0 && !node.collapse ? "border-2 border-sky-600 border-l-4 border-l-purple-400" : "border border-slate-700 border-l-4 border-l-purple-400"}`}
+            className={`relative ${headerOnly ? "w-64" : "max-w-xs"} rounded bg-purple-900/40 text-slate-100 hover:bg-purple-900/60 ${denied ? "ring-2 ring-red-500 " : dropPos === "inside" ? "ring-2 ring-sky-400 " : ""}${node.children.length > 0 && !node.collapse ? "border-2 border-sky-600 border-l-4 border-l-purple-400" : "border border-slate-700 border-l-4 border-l-purple-400"}`}
             >
                 {dropPos === "before" && <DropLine edge="before" depth={depth} />}
                 {dropPos === "after" && <DropLine edge="after" depth={depth} />}
@@ -126,7 +133,7 @@ export default function PhaseNode({ node, depth, headerOnly, onToggle }: Props) 
 
                     <button
                         type="button"
-                        onClick={(e) => { e.stopPropagation(); handleStatusClick() }}
+                        onClick={(e) => { e.stopPropagation(); handleStatusClick(e) }}
                         className={`inline-block w-3 h-3 rounded-full ${dotColor}`}
                         aria-label="status"
                     />
