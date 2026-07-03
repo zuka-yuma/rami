@@ -97,13 +97,13 @@ export default function PhaseNode({ node, depth }: Props) {
         <li className={`flex flex-col items-start ${isDragging ? "opacity-40" : ""}`}>
             {/* phase は紫アクセント。子ありは sky の枠で展開可能を示す */}
             <div ref={setNodeRef}
-            className={`relative rounded bg-purple-900/40 text-slate-100 hover:bg-purple-900/60 ${dropPos === "inside" ? "ring-2 ring-sky-400 " : ""}${node.children.length > 0 && !node.collapse ? "border-2 border-sky-600 border-l-4 border-l-purple-400" : "border border-slate-700 border-l-4 border-l-purple-400"}`}
+            className={`relative max-w-xs rounded bg-purple-900/40 text-slate-100 hover:bg-purple-900/60 ${dropPos === "inside" ? "ring-2 ring-sky-400 " : ""}${node.children.length > 0 && !node.collapse ? "border-2 border-sky-600 border-l-4 border-l-purple-400" : "border border-slate-700 border-l-4 border-l-purple-400"}`}
             >
                 {dropPos === "before" && <DropLine edge="before" depth={depth} />}
                 {dropPos === "after" && <DropLine edge="after" depth={depth} />}
                 {/* 上段: ハンドル・Phaseバッジ・ステータス・タイトル。クリックで展開/折りたたみ */}
                 <div
-                    className={`flex items-center gap-2 px-2 py-1 ${node.children.length > 0 ? "cursor-pointer" : ""}`}
+                    className={`flex min-w-0 items-center gap-2 px-2 py-1 ${node.children.length > 0 ? "cursor-pointer" : ""}`}
                     onClick={() => { if (node.children.length > 0) updateNode(node.id, { collapse: !node.collapse }) }}
                 >
                     <button
@@ -140,7 +140,7 @@ export default function PhaseNode({ node, depth }: Props) {
                             className="bg-slate-700 text-slate-100 border border-slate-600 rounded px-1"
                         />
                     ) : (
-                        <span onDoubleClick={() => setEditing(true)}>{node.title}</span>
+                        <span className={`min-w-0 truncate ${node.title ? "" : "text-slate-500"}`} onDoubleClick={() => setEditing(true)}>{node.title || "無題"}</span>
                     )}
                     {node.deadline && (
                         <span className={`shrink-0 text-xs ${deadlineColor(node)}`}>{node.deadline.slice(5, 7)}/{node.deadline.slice(8, 10)}</span>
