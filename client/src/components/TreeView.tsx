@@ -167,8 +167,8 @@ export default function TreeView({hideDone, rootId}: Props) {
             </DropIndicatorProvider>
             <DragOverlay dropAnimation={null}>
                 {activeNode ? (
-                    <div className="cursor-grabbing rounded-lg bg-white shadow-2xl ring-1 ring-black/5 opacity-90">
-                        <NodeRenderer node={{ ...activeNode, children: [] }} depth={0} />
+                    <div className="w-fit cursor-grabbing rounded-lg shadow-2xl opacity-90">
+                        <NodeRenderer node={{ ...activeNode, children: [] }} depth={1} />
                     </div>
                 ) : null}
             </DragOverlay>
