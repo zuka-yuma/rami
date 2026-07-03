@@ -106,7 +106,7 @@ export default function NodeDetail({ node }: Props) {
     }
 
     return (
-        <div className="ml-4 mt-2 p-3 bg-slate-800 text-slate-200 rounded border border-slate-700 text-sm">
+        <div className="border-t border-slate-700 px-2 py-2 text-slate-200 text-sm">
             <div className="flex flex-wrap gap-3 items-center">
                 <label>
                     ステータス:
@@ -133,7 +133,9 @@ export default function NodeDetail({ node }: Props) {
                         <option value="low">低</option>
                     </select>
                 </label>
+            </div>
 
+            <div className="flex flex-wrap gap-3 items-center mt-2">
                 <label>
                     期限:
                     {/* 年・月・日を別 input に分け、表示上の "-" は span で描画。
@@ -212,7 +214,7 @@ export default function NodeDetail({ node }: Props) {
                     onClick={handleToggleType}
                     className="px-2 py-1 bg-slate-700 text-slate-200 rounded hover:bg-slate-600"
                 >
-                    {node.nodetype === "task" ? "→ Phase に切替" : "→ Task に切替"}
+                    {node.nodetype === "task" ? "→ Phase" : "→ Task"}
                 </button>
             </div>
         </div>

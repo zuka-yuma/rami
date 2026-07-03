@@ -156,9 +156,10 @@ export default function TreeNode({ node, depth }: Props) {
                         <button type="button" onClick={handleRemove} className="text-xs text-red-400">－</button>
                     )}
                 </div>
+
+                {detailOpen && <NodeDetail node={node} />}
             </div>
 
-            {detailOpen && <NodeDetail node={node} />}
 
             {!node.collapse && node.children.length > 0 && (
                 <SortableContext items={visibleChildren.map(children => children.id)} strategy={depth === 0 ? verticalListSortingStrategy : undefined}>

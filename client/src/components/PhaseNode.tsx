@@ -160,9 +160,10 @@ export default function PhaseNode({ node, depth }: Props) {
                         <button type="button" onClick={handleRemove} className="text-xs text-red-400">－</button>
                     )}
                 </div>
+
+                {detailOpen && <NodeDetail node={node} />}
             </div>
 
-            {detailOpen && <NodeDetail node={node} />}
 
             {/* 展開時: 上部にプログレスライン、子ステップを番号付き (ol) で並べる */}
             {!node.collapse && node.children.length > 0 && (
