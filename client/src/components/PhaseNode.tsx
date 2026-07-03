@@ -8,7 +8,7 @@ import type { TreeNode as TreeNodeType, Status } from "../types"
 import { useState } from "react"
 import { useTreeContext } from "../contexts/TreeContext"
 import { useAddNode } from "../contexts/AddNodeContext"
-import { subtreeUrgency } from "../utils/nodeStatus"
+import { subtreeUrgency, deadlineColor } from "../utils/nodeStatus"
 import { useHideDone } from "../contexts/HideDoneContext"
 import { useDropIndicator } from "../contexts/DropIndicatorContext"
 import { DropLine } from "./DropLine"
@@ -141,6 +141,9 @@ export default function PhaseNode({ node, depth }: Props) {
                         />
                     ) : (
                         <span onDoubleClick={() => setEditing(true)}>{node.title}</span>
+                    )}
+                    {node.deadline && (
+                        <span className={`shrink-0 text-xs ${deadlineColor(node)}`}>{node.deadline.slice(5, 7)}/{node.deadline.slice(8, 10)}</span>
                     )}
                 </div>
 

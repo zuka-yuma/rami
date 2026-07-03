@@ -16,6 +16,13 @@ const selfUrgency = (node: TreeNode): Urgency => {
 
 const RANK: Record<Urgency, number> = { delay: 5, overdue: 4, in_progress: 3, todo: 2, done: 1 };
 
+// 期限テキストの色。そのノード自身の期限×ステータスで決める。
+export const deadlineColor = (node: TreeNode): string => {
+    if (isOverdue(node.deadline) && node.status === "in_progress") return "text-orange-400";
+    if (isOverdue(node.deadline) && node.status === "todo") return "text-red-400";
+    return "text-slate-400";
+};
+
 export const subtreeUrgency = (node: TreeNode): Urgency => {
     let worst = selfUrgency(node);
     for (const child of node.children) {
