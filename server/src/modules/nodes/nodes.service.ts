@@ -1,4 +1,4 @@
-import { PrismaClient } from '../../generated/prisma/index.js'
+import { type Status, type Node, PrismaClient } from '../../generated/prisma/index.js'
 import { PrismaPg } from '@prisma/adapter-pg'
 import { config } from '../../config.js'
 import type { createNodeSchemaType, updateNodeSchemaType } from './nodes.schema.js'
@@ -9,6 +9,12 @@ import { buildTree } from './tree.utils.js'
 
 const adapter = new PrismaPg({ connectionString: config.databaseURL })
 const prisma = new PrismaClient({ adapter })
+
+export function deriveStatus(children: Node[]): Status {
+    if (children.every(c => c.status === "done")) return "done"
+    if (children.some(c => c.status === "in_progress")) return "in_progress"
+    return "todo"
+}
 
 export async function getAll(userId: string) {
     const node = await prisma.node.findMany({ where: { userId } })
@@ -53,27 +59,40 @@ export async function createNode(userId: string, data: createNodeSchemaType) {
 
 export async function updateNode(userId: string, nodeId: string, data: updateNodeSchemaType) {
     try {
-        const updateDatas: any = {}
-        if (data.title !== undefined) {
-            updateDatas.title = data.title
-        }
-        if (data.status !== undefined) {
-            updateDatas.status = data.status
-        }
-        if (data.priority !== undefined) {
-            updateDatas.priority = data.priority
-        }
-        if (data.deadline !== undefined) {
-            updateDatas.deadline = data.deadline ? new Date(data.deadline) : null
-        }
-        if (data.collapse !== undefined) {
-            updateDatas.collapse = data.collapse
-        }
-        const nodeData = await prisma.node.update({ 
-            where: { id: nodeId, userId },
-            data: updateDatas
+        await prisma.$transaction(async (prisma) => {
+            const updateDatas: any = {}
+            if (data.title !== undefined) {
+                updateDatas.title = data.title
+            }
+            if (data.status !== undefined) {
+                updateDatas.status = data.status
+            }
+            if (data.priority !== undefined) {
+                updateDatas.priority = data.priority
+            }
+            if (data.deadline !== undefined) {
+                updateDatas.deadline = data.deadline ? new Date(data.deadline) : null
+            }
+            if (data.collapse !== undefined) {
+                updateDatas.collapse = data.collapse
+            }
+            const nodeData = await prisma.node.update({ 
+                where: { id: nodeId, userId },
+                data: updateDatas
+            })
+            if (data.status !== undefined) {
+                let pid = nodeData.parentId;
+                while (pid) {
+                    const children = await prisma.node.findMany({ where: {userId, parentId: pid } })
+                    const ns = deriveStatus(children)
+                    const parent = await prisma.node.findUnique({ where: {userId, id: pid} })
+                    if (!parent || parent.status === ns) break
+                    await prisma.node.update({ where: { userId, id: pid}, data: {status: ns} })
+                    pid = parent.parentId
+                }
+            }
+            return nodeData
         })
-        return nodeData
     } catch (error) {
         if (error instanceof PrismaClientKnownRequestError) {
             throw new NotFoundError()
