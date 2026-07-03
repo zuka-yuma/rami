@@ -11,12 +11,15 @@ import { subtreeUrgency, deadlineColor } from "../utils/nodeStatus"
 import { useHideDone } from "../contexts/HideDoneContext"
 import { useDropIndicator } from "../contexts/DropIndicatorContext"
 import { DropLine } from "./DropLine"
+import { HorizontalChildren } from "./HorizontalChildren"
 import NodeRenderer from "./NodeRenderer"
 import NodeDetail from "./NodeDetail"
 
 interface Props {
     node: TreeNodeType
     depth: number
+    headerOnly?: boolean
+    onToggle?: () => void
 }
 
 const statusColor = (status: Status) => {
@@ -43,7 +46,7 @@ const nextStatus = (status: Status): Status => {
     }
 }
 
-export default function TreeNode({ node, depth }: Props) {
+export default function TreeNode({ node, depth, headerOnly, onToggle }: Props) {
     const { updateNode, removeNode } = useTreeContext()
     const openAdd = useAddNode()
     const [editing, setEditing] = useState<boolean>(false)
@@ -89,19 +92,21 @@ export default function TreeNode({ node, depth }: Props) {
     const dropTarget = useDropIndicator()
     const dropPos = dropTarget?.overId === node.id ? dropTarget.position : null
 
+    const toggle = onToggle ?? (() => updateNode(node.id, { collapse: !node.collapse }))
+
     return (
         // DnD: useSortable の setNodeRef を ref に、transform/transition を style に、
         // isDragging のとき opacity-40 を付ける
         <li className={`flex flex-col items-start ${isDragging ? "opacity-40" : ""}`}>
             <div ref={setNodeRef}
-            className={`relative max-w-xs rounded bg-slate-800 text-slate-100 hover:bg-slate-700 ${dropPos === "inside" ? "ring-2 ring-sky-400 " : ""}${node.children.length > 0 && !node.collapse ? "border-2 border-sky-600" : "border border-slate-700"}`}
+            className={`relative ${headerOnly ? "w-64" : "max-w-xs"} rounded bg-slate-800 text-slate-100 hover:bg-slate-700 ${dropPos === "inside" ? "ring-2 ring-sky-400 " : ""}${node.children.length > 0 && !node.collapse ? "border-2 border-sky-600" : "border border-slate-700"}`}
             >
                 {dropPos === "before" && <DropLine edge="before" depth={depth} />}
                 {dropPos === "after" && <DropLine edge="after" depth={depth} />}
                 {/* 上段: ハンドル・ステータス・タイトル。クリックで展開/折りたたみ */}
                 <div
                     className={`flex min-w-0 items-center gap-2 px-2 py-1 ${node.children.length > 0 ? "cursor-pointer" : ""}`}
-                    onClick={() => { if (node.children.length > 0) updateNode(node.id, { collapse: !node.collapse }) }}
+                    onClick={() => { if (node.children.length > 0) toggle() }}
                 >
                     <button
                         type="button"
@@ -141,6 +146,9 @@ export default function TreeNode({ node, depth }: Props) {
                     {node.deadline && (
                         <span className={`shrink-0 text-xs ${deadlineColor(node)}`}>{node.deadline.slice(5, 7)}/{node.deadline.slice(8, 10)}</span>
                     )}
+                    {node.children.length > 0 && node.collapse && (
+                        <span className="shrink-0 rounded-full bg-slate-600 px-1.5 text-[10px] leading-4 text-slate-200">{node.children.length}</span>
+                    )}
                 </div>
 
                 {/* 下段: 優先度・詳細・追加・削除 */}
@@ -161,16 +169,18 @@ export default function TreeNode({ node, depth }: Props) {
             </div>
 
 
-            {!node.collapse && node.children.length > 0 && (
-                <SortableContext items={visibleChildren.map(children => children.id)} strategy={depth === 0 ? verticalListSortingStrategy : undefined}>
-                    <ul className={depth === 0
-                        ? "flex flex-col gap-1 ml-4 mt-1"
-                        : "flex flex-col md:flex-row md:items-start gap-1 md:gap-4 ml-4 md:ml-6 mt-1 md:mt-2"}>
-                        {visibleChildren.map(child => (
-                            <NodeRenderer key={child.id} node={child} depth={depth + 1} />
-                        ))}
-                    </ul>
-                </SortableContext>
+            {!headerOnly && !node.collapse && node.children.length > 0 && (
+                depth === 0 ? (
+                    <SortableContext items={visibleChildren.map(children => children.id)} strategy={verticalListSortingStrategy}>
+                        <ul className="flex flex-col gap-1 ml-4 mt-1">
+                            {visibleChildren.map(child => (
+                                <NodeRenderer key={child.id} node={child} depth={depth + 1} />
+                            ))}
+                        </ul>
+                    </SortableContext>
+                ) : (
+                    <HorizontalChildren nodes={node.children} depth={depth + 1} />
+                )
             )}
         </li>
     )

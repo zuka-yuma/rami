@@ -12,6 +12,7 @@ import { subtreeUrgency, deadlineColor } from "../utils/nodeStatus"
 import { useHideDone } from "../contexts/HideDoneContext"
 import { useDropIndicator } from "../contexts/DropIndicatorContext"
 import { DropLine } from "./DropLine"
+import { HorizontalChildren } from "./HorizontalChildren"
 import StepProgress from "./StepProgress"
 import NodeRenderer from "./NodeRenderer"
 import NodeDetail from "./NodeDetail"
@@ -19,6 +20,8 @@ import NodeDetail from "./NodeDetail"
 interface Props {
     node: TreeNodeType
     depth: number
+    headerOnly?: boolean
+    onToggle?: () => void
 }
 
 const statusColor = (status: Status) => {
@@ -45,7 +48,7 @@ const nextStatus = (status: Status): Status => {
     }
 }
 
-export default function PhaseNode({ node, depth }: Props) {
+export default function PhaseNode({ node, depth, headerOnly, onToggle }: Props) {
     const { updateNode, removeNode } = useTreeContext()
     const openAdd = useAddNode()
     const [editing, setEditing] = useState<boolean>(false)
@@ -91,20 +94,22 @@ export default function PhaseNode({ node, depth }: Props) {
     const dropTarget = useDropIndicator()
     const dropPos = dropTarget?.overId === node.id ? dropTarget.position : null
 
+    const toggle = onToggle ?? (() => updateNode(node.id, { collapse: !node.collapse }))
+
     return (
         // DnD: useSortable の setNodeRef を ref に、transform/transition を style に、
         // isDragging のとき opacity-40 を付ける
         <li className={`flex flex-col items-start ${isDragging ? "opacity-40" : ""}`}>
             {/* phase は紫アクセント。子ありは sky の枠で展開可能を示す */}
             <div ref={setNodeRef}
-            className={`relative max-w-xs rounded bg-purple-900/40 text-slate-100 hover:bg-purple-900/60 ${dropPos === "inside" ? "ring-2 ring-sky-400 " : ""}${node.children.length > 0 && !node.collapse ? "border-2 border-sky-600 border-l-4 border-l-purple-400" : "border border-slate-700 border-l-4 border-l-purple-400"}`}
+            className={`relative ${headerOnly ? "w-64" : "max-w-xs"} rounded bg-purple-900/40 text-slate-100 hover:bg-purple-900/60 ${dropPos === "inside" ? "ring-2 ring-sky-400 " : ""}${node.children.length > 0 && !node.collapse ? "border-2 border-sky-600 border-l-4 border-l-purple-400" : "border border-slate-700 border-l-4 border-l-purple-400"}`}
             >
                 {dropPos === "before" && <DropLine edge="before" depth={depth} />}
                 {dropPos === "after" && <DropLine edge="after" depth={depth} />}
                 {/* 上段: ハンドル・Phaseバッジ・ステータス・タイトル。クリックで展開/折りたたみ */}
                 <div
                     className={`flex min-w-0 items-center gap-2 px-2 py-1 ${node.children.length > 0 ? "cursor-pointer" : ""}`}
-                    onClick={() => { if (node.children.length > 0) updateNode(node.id, { collapse: !node.collapse }) }}
+                    onClick={() => { if (node.children.length > 0) toggle() }}
                 >
                     <button
                         type="button"
@@ -145,6 +150,9 @@ export default function PhaseNode({ node, depth }: Props) {
                     {node.deadline && (
                         <span className={`shrink-0 text-xs ${deadlineColor(node)}`}>{node.deadline.slice(5, 7)}/{node.deadline.slice(8, 10)}</span>
                     )}
+                    {node.children.length > 0 && node.collapse && (
+                        <span className="shrink-0 rounded-full bg-slate-600 px-1.5 text-[10px] leading-4 text-slate-200">{node.children.length}</span>
+                    )}
                 </div>
 
                 {/* 下段: 優先度・詳細・追加・削除 */}
@@ -166,18 +174,20 @@ export default function PhaseNode({ node, depth }: Props) {
 
 
             {/* 展開時: 上部にプログレスライン、子ステップを番号付き (ol) で並べる */}
-            {!node.collapse && node.children.length > 0 && (
-                <div className="ml-6 mt-2">
-                    <StepProgress steps={node.children} />
-                    <SortableContext items={visibleChildren.map(children => children.id)} strategy={depth === 0 ? verticalListSortingStrategy : undefined}>
-                        <ol className={depth === 0
-                            ? "flex flex-col gap-1 mt-2"
-                            : "flex flex-col md:flex-row md:items-start gap-1 md:gap-4 mt-1 md:mt-2"}>
-                            {visibleChildren.map(child => (
-                                <NodeRenderer key={child.id} node={child} depth={depth + 1} />
-                            ))}
-                        </ol>
-                    </SortableContext>
+            {!headerOnly && !node.collapse && node.children.length > 0 && (
+                <div className="mt-2">
+                    <div className="ml-6"><StepProgress steps={node.children} /></div>
+                    {depth === 0 ? (
+                        <SortableContext items={visibleChildren.map(children => children.id)} strategy={verticalListSortingStrategy}>
+                            <ol className="flex flex-col gap-1 ml-6 mt-2">
+                                {visibleChildren.map(child => (
+                                    <NodeRenderer key={child.id} node={child} depth={depth + 1} />
+                                ))}
+                            </ol>
+                        </SortableContext>
+                    ) : (
+                        <HorizontalChildren nodes={node.children} depth={depth + 1} />
+                    )}
                 </div>
             )}
         </li>
