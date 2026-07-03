@@ -21,7 +21,7 @@ export default function LoginForm() {
     } = useForm<LoginInputs>({ mode: "onBlur" })
 
     const { login: loginUser, register: registerUser } = useAuth()
-    
+
     const isValid: SubmitHandler<LoginInputs> = async (data) => {
         if (mode === "login") {
             await loginUser(data.email, data.password)
@@ -38,108 +38,76 @@ export default function LoginForm() {
         } else {
             console.log("Fail Register")
         }
-        
     }
 
+    const inputClass = "w-full rounded-md border border-slate-600 bg-slate-700 px-3 py-2 text-slate-100 placeholder-slate-400 focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+
     return (
-        <div>
-            <div className="flex-col">
-                <div>
-                    <button type="button" onClick={() => {
-                        setMode("login")
-                        reset()
-                    }}>Login</button>
-                    <button type="button" onClick={() => {
-                        setMode("register")
-                        reset()
-                    }}>Register</button>
+        <div className="flex min-h-screen items-center justify-center bg-slate-950 p-4">
+            <div className="w-full max-w-sm rounded-xl border border-slate-700 bg-slate-800 p-6 shadow-2xl">
+                <h1 className="text-2xl font-semibold text-slate-100">tree-todo</h1>
+                <p className="mt-1 mb-5 text-sm text-slate-400">
+                    {mode === "login" ? "ログイン" : "アカウント登録"}
+                </p>
+
+                {/* ログイン / 登録の切り替えタブ */}
+                <div className="mb-5 flex rounded-lg bg-slate-900 p-1">
+                    <button type="button" onClick={() => { setMode("login"); reset() }}
+                        className={`flex-1 rounded-md py-1.5 text-sm transition ${mode === "login" ? "bg-slate-700 text-white" : "text-slate-400 hover:text-slate-200"}`}>
+                        ログイン
+                    </button>
+                    <button type="button" onClick={() => { setMode("register"); reset() }}
+                        className={`flex-1 rounded-md py-1.5 text-sm transition ${mode === "register" ? "bg-slate-700 text-white" : "text-slate-400 hover:text-slate-200"}`}>
+                        登録
+                    </button>
                 </div>
-                <form onSubmit={handleSubmit(isValid, isInValid)}>
-                    <div>
-                        <label className="text-sm" htmlFor="email">
-                        Email
-                        </label>
-                    </div>
-                    <div>
-                        <input
-                        {...register("email", { required: "emailを入力してください" })}
-                        className="rounded-md border px-3 py-2 focus:border-2 focus:border-teal-500 focus:outline-none"
-                        type="email"
-                        />
-                    </div>
-                    {errors.email?.message && <div className="text-red-500">
-                        {errors.email.message}
-                    </div>}
-                    
-                    {mode === "register" && (
-                        <div>
-                            <div>
-                                <label className="text-sm" htmlFor="name">
-                                Name
-                                </label>
-                            </div>
-                        
-                            <div>
-                                <input
-                                {...register("name", {
-                                    required: "nameを入力してください",
-                                })}
-                                className="rounded-md border px-3 py-2 focus:border-2 focus:border-teal-500 focus:outline-none"
-                            />
-                            </div>
-                        </div>
-                    )} 
 
+                <form onSubmit={handleSubmit(isValid, isInValid)} className="flex flex-col gap-4">
                     <div>
-                        <label className="text-sm" htmlFor="password">
-                        Password
-                        </label>
+                        <label className="mb-1 block text-sm text-slate-300" htmlFor="email">Email</label>
+                        <input id="email" type="email" className={inputClass}
+                            {...register("email", { required: "emailを入力してください" })} />
+                        {errors.email?.message && <p className="mt-1 text-sm text-red-400">{errors.email.message}</p>}
                     </div>
-
-                    <div>
-                    <input
-                        {...register("password", {
-                            required: "passwordを入力してください",
-                            minLength: { value: 8, message: "8文字以上入力してください" },
-                        })}
-                        className="rounded-md border px-3 py-2 focus:border-2 focus:border-teal-500 focus:outline-none"
-                        type="password"
-                        />
-                    </div>
-                    {errors.password?.message && <div className="text-red-500">
-                        {errors.password.message}
-                    </div>}
 
                     {mode === "register" && (
                         <div>
-                            <div>
-                                <label className="text-sm" htmlFor="passwordkConfirm">
-                                Confirm Password
-                                </label>
-                            </div>
-                            <div>
-                            <input
-                            {...register("passwordConfirm", {
-                                required: "確認用パスワード入力してください",
-                                validate: (value, formValues) => 
-                                    value === formValues.password || "パスワードが一致しません",
-                            })}
-                            className="rounded-md border px-3 py-2 focus:border-2 focus:border-teal-500 focus:outline-none"
-                            type="password"
-                            />
-                            </div>
-                            {errors.passwordConfirm?.message && <div className="text-red-500">
-                                {errors.passwordConfirm.message}
-                            </div>}
+                            <label className="mb-1 block text-sm text-slate-300" htmlFor="name">Name</label>
+                            <input id="name" className={inputClass}
+                                {...register("name", { required: "nameを入力してください" })} />
+                            {errors.name?.message && <p className="mt-1 text-sm text-red-400">{errors.name.message}</p>}
                         </div>
                     )}
 
                     <div>
-                        <button type="submit">{mode === "login" ? "Login" : "Register"}</button>
+                        <label className="mb-1 block text-sm text-slate-300" htmlFor="password">Password</label>
+                        <input id="password" type="password" className={inputClass}
+                            {...register("password", {
+                                required: "passwordを入力してください",
+                                minLength: { value: 8, message: "8文字以上入力してください" },
+                            })} />
+                        {errors.password?.message && <p className="mt-1 text-sm text-red-400">{errors.password.message}</p>}
                     </div>
+
+                    {mode === "register" && (
+                        <div>
+                            <label className="mb-1 block text-sm text-slate-300" htmlFor="passwordConfirm">Confirm Password</label>
+                            <input id="passwordConfirm" type="password" className={inputClass}
+                                {...register("passwordConfirm", {
+                                    required: "確認用パスワード入力してください",
+                                    validate: (value, formValues) =>
+                                        value === formValues.password || "パスワードが一致しません",
+                                })} />
+                            {errors.passwordConfirm?.message && <p className="mt-1 text-sm text-red-400">{errors.passwordConfirm.message}</p>}
+                        </div>
+                    )}
+
+                    <button type="submit"
+                        className="mt-1 w-full rounded-md bg-teal-600 py-2 font-medium text-white transition hover:bg-teal-500">
+                        {mode === "login" ? "ログイン" : "登録"}
+                    </button>
                 </form>
             </div>
         </div>
     )
-    
 }

@@ -43,7 +43,7 @@ export type UpdateNodeInput = {
     title?: string
     status?: Status
     priority?: Priority
-    deadline?: string
+    deadline?: string | null
     collapse?: boolean
 }
 

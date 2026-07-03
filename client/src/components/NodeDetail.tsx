@@ -106,14 +106,14 @@ export default function NodeDetail({ node }: Props) {
     }
 
     return (
-        <div className="ml-4 mt-2 p-3 bg-gray-50 rounded border text-sm">
+        <div className="border-t border-slate-700 px-2 py-2 text-slate-200 text-sm">
             <div className="flex flex-wrap gap-3 items-center">
                 <label>
                     ステータス:
                     <select
                         value={node.status}
                         onChange = {(e) => updateNode(node.id, { status: e.target.value as Status})}
-                        className="ml-1 border rounded px-1"
+                        className="ml-1 border border-slate-600 bg-slate-700 text-slate-100 rounded px-1"
                     >
                         <option value="todo">未着手</option>
                         <option value="in_progress">進行中</option>
@@ -126,14 +126,16 @@ export default function NodeDetail({ node }: Props) {
                     <select
                         value={node.priority}
                         onChange={(e) => updateNode(node.id, { priority: e.target.value as Priority })}
-                        className="ml-1 border rounded px-1"
+                        className="ml-1 border border-slate-600 bg-slate-700 text-slate-100 rounded px-1"
                     >
                         <option value="high">高</option>
                         <option value="medium">中</option>
                         <option value="low">低</option>
                     </select>
                 </label>
+            </div>
 
+            <div className="flex flex-wrap gap-3 items-center mt-2">
                 <label>
                     期限:
                     {/* 年・月・日を別 input に分け、表示上の "-" は span で描画。
@@ -159,7 +161,7 @@ export default function NodeDetail({ node }: Props) {
                                 // ここでは saveDeadline を直接呼ばない（二重実行防止）
                                 if (e.key === "Enter") e.currentTarget.blur()
                             }}
-                            className={`w-14 border rounded px-1 text-center focus:outline-none focus:ring-2 ${errorFields.includes("year") ? "border-red-500 border-2 focus:ring-red-300" : "focus:ring-blue-300"}`}
+                            className={`w-14 border border-slate-600 bg-slate-700 text-slate-100 rounded px-1 text-center focus:outline-none focus:ring-2 ${errorFields.includes("year") ? "border-red-500 border-2 focus:ring-red-300" : "focus:ring-blue-300"}`}
                         />
                         <span>-</span>
                         <input
@@ -182,7 +184,7 @@ export default function NodeDetail({ node }: Props) {
                                 // ここでは saveDeadline を直接呼ばない（二重実行防止）
                                 if (e.key === "Enter") e.currentTarget.blur()
                             }}
-                            className={`w-10 border rounded px-1 text-center focus:outline-none focus:ring-2 ${errorFields.includes("month") ? "border-red-500 border-2 focus:ring-red-300" : "focus:ring-blue-300"}`}
+                            className={`w-10 border border-slate-600 bg-slate-700 text-slate-100 rounded px-1 text-center focus:outline-none focus:ring-2 ${errorFields.includes("month") ? "border-red-500 border-2 focus:ring-red-300" : "focus:ring-blue-300"}`}
                         />
                         <span>-</span>
                         <input
@@ -202,7 +204,7 @@ export default function NodeDetail({ node }: Props) {
                                 // ここでは saveDeadline を直接呼ばない（二重実行防止）
                                 if (e.key === "Enter") e.currentTarget.blur()
                             }}
-                            className={`w-10 border rounded px-1 text-center focus:outline-none focus:ring-2 ${errorFields.includes("day") ? "border-red-500 border-2 focus:ring-red-300" : "focus:ring-blue-300"}`}
+                            className={`w-10 border border-slate-600 bg-slate-700 text-slate-100 rounded px-1 text-center focus:outline-none focus:ring-2 ${errorFields.includes("day") ? "border-red-500 border-2 focus:ring-red-300" : "focus:ring-blue-300"}`}
                         />
                     </span>
                 </label>
@@ -210,9 +212,9 @@ export default function NodeDetail({ node }: Props) {
                 <button
                     type="button"
                     onClick={handleToggleType}
-                    className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
+                    className="px-2 py-1 bg-slate-700 text-slate-200 rounded hover:bg-slate-600"
                 >
-                    {node.nodetype === "task" ? "→ Phase に切替" : "→ Task に切替"}
+                    {node.nodetype === "task" ? "→ Phase" : "→ Task"}
                 </button>
             </div>
         </div>
