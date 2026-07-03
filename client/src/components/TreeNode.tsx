@@ -8,6 +8,8 @@ import type { TreeNode as TreeNodeType, Status } from "../types"
 import { useState } from "react"
 import { useTreeContext } from "../contexts/TreeContext"
 import { useAddNode } from "../contexts/AddNodeContext"
+import { subtreeUrgency } from "../utils/nodeStatus"
+import { useHideDone } from "../contexts/HideDoneContext"
 import NodeRenderer from "./NodeRenderer"
 import NodeDetail from "./NodeDetail"
 
@@ -77,6 +79,14 @@ export default function TreeNode({ node, depth }: Props) {
             id: node.id
         })
 
+    const urgency = subtreeUrgency(node)
+    const dotColor = urgency === "delay" ? "bg-orange-500"
+        : urgency === "overdue" ? "bg-red-500"
+        : statusColor(urgency)
+
+    const hideDone = useHideDone()
+    const visibleChildren = hideDone ? node.children.filter(c => c.status !== "done") : node.children
+
     return (
         // DnD: useSortable の setNodeRef を ref に、transform/transition を style に、
         // isDragging のとき opacity-40 を付ける
@@ -86,7 +96,7 @@ export default function TreeNode({ node, depth }: Props) {
                 transform: CSS.Transform.toString(transform),
                 transition,
             }}
-            className={`rounded bg-slate-800 text-slate-100 hover:bg-slate-700 ${node.children.length > 0 ? "border-2 border-sky-600" : "border border-slate-700"}`}
+            className={`rounded bg-slate-800 text-slate-100 hover:bg-slate-700 ${node.children.length > 0 && !node.collapse ? "border-2 border-sky-600" : "border border-slate-700"}`}
             >
                 {/* 上段: ハンドル・ステータス・タイトル。クリックで展開/折りたたみ */}
                 <div
@@ -108,7 +118,7 @@ export default function TreeNode({ node, depth }: Props) {
                     <button
                         type="button"
                         onClick={(e) => { e.stopPropagation(); handleStatusClick() }}
-                        className={`inline-block w-3 h-3 rounded-full ${statusColor(node.status)}`}
+                        className={`inline-block w-3 h-3 rounded-full ${dotColor}`}
                         aria-label="status"
                     />
 
@@ -148,11 +158,11 @@ export default function TreeNode({ node, depth }: Props) {
             {detailOpen && <NodeDetail node={node} />}
 
             {!node.collapse && node.children.length > 0 && (
-                <SortableContext items={node.children.map(children => children.id)} strategy={depth === 0 ? verticalListSortingStrategy : undefined}>
+                <SortableContext items={visibleChildren.map(children => children.id)} strategy={depth === 0 ? verticalListSortingStrategy : undefined}>
                     <ul className={depth === 0
                         ? "flex flex-col gap-1 ml-4 mt-1"
                         : "flex flex-col md:flex-row md:items-start gap-1 md:gap-4 ml-4 md:ml-6 mt-1 md:mt-2"}>
-                        {node.children.map(child => (
+                        {visibleChildren.map(child => (
                             <NodeRenderer key={child.id} node={child} depth={depth + 1} />
                         ))}
                     </ul>

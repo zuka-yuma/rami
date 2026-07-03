@@ -1,6 +1,7 @@
 import { DndContext, useSensor, useSensors, DragOverlay, PointerSensor, type DragStartEvent, type DragEndEvent } from "@dnd-kit/core";
 import { SortableContext } from "@dnd-kit/sortable";
 import { useTreeContext } from "../contexts/TreeContext";
+import { HideDoneProvider } from "../contexts/HideDoneContext";
 import NodeRenderer from "./NodeRenderer";
 import { useState } from "react";
 import type { TreeNode } from "../types";
@@ -109,15 +110,9 @@ export default function TreeView({hideDone, rootId}: Props) {
         }
     }
 
-    const filterDone = (nodes: TreeNode[]): TreeNode[] => {
-        return nodes.filter(n => n.status !== "done").map(n => ({ ...n, children: filterDone(n.children) }))
-    }
-
-    const rootNode = rootId ? tree.find(n => n.id === rootId) ?? null : null
-    // 選択ルートの配下だけ描画。hideDone は配下(children)に適用し、ルート自身は常に表示。
-    const visibleRoot = rootNode
-        ? { ...rootNode, children: hideDone ? filterDone(rootNode.children) : rootNode.children }
-        : null
+    // 選択ルートを丸ごと描画。done の除外は各ノードが表示時に行う(HideDoneProvider 経由)。
+    // ツリー自体はフィルタしないので StepProgress 等は全ステップで計算できる。
+    const visibleRoot = rootId ? tree.find(n => n.id === rootId) ?? null : null
 
     if (loading === true) return (
         <div className="text-slate-400">
@@ -139,11 +134,13 @@ export default function TreeView({hideDone, rootId}: Props) {
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
         >
-            <SortableContext items={[visibleRoot.id]}>
-                <ul>
-                    <NodeRenderer node={visibleRoot} depth={0} />
-                </ul>
-            </SortableContext>
+            <HideDoneProvider value={hideDone}>
+                <SortableContext items={[visibleRoot.id]}>
+                    <ul>
+                        <NodeRenderer node={visibleRoot} depth={0} />
+                    </ul>
+                </SortableContext>
+            </HideDoneProvider>
             <DragOverlay dropAnimation={null}>
                 {activeNode ? (
                     <div className="cursor-grabbing rounded-lg bg-white shadow-2xl ring-1 ring-black/5 opacity-90">
