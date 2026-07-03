@@ -1,10 +1,11 @@
-import { DndContext, useSensor, useSensors, DragOverlay, PointerSensor, type DragStartEvent, type DragEndEvent } from "@dnd-kit/core";
+import { DndContext, useSensor, useSensors, DragOverlay, PointerSensor, type DragStartEvent, type DragEndEvent, type DragMoveEvent } from "@dnd-kit/core";
 import { SortableContext } from "@dnd-kit/sortable";
 import { useTreeContext } from "../contexts/TreeContext";
 import { HideDoneProvider } from "../contexts/HideDoneContext";
 import NodeRenderer from "./NodeRenderer";
 import { useState } from "react";
 import type { TreeNode } from "../types";
+import { DropIndicatorProvider } from "../contexts/DropIndicatorContext";
 
 interface Props {
     hideDone: boolean
@@ -14,6 +15,7 @@ interface Props {
 export default function TreeView({hideDone, rootId}: Props) {
     const { tree, loading, reorderNodes, reorderSteps, moveNode } = useTreeContext()
     const [ activeId, setActiveId ] = useState<string | null>(null)
+    const [ dropTarget, setDropTarget ] = useState<{ overId: string, position: "before" | "after" | "inside" } | null>(null)
 
     const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: {distance: 8} } ))
 
@@ -25,6 +27,7 @@ export default function TreeView({hideDone, rootId}: Props) {
     const handleDragEnd = async (event: DragEndEvent) => {
         const { active, over } = event
         setActiveId(null)
+        setDropTarget(null)
         if (over === null || active.id === over.id || activeId === null) return
         const overId = String(over.id)
         const activeNode = found(tree, activeId)
@@ -70,6 +73,23 @@ export default function TreeView({hideDone, rootId}: Props) {
                 await reorderNodes(overNode.id, {orderedIds})
             }
         }
+    }
+
+    const handleDragMove = (event: DragMoveEvent | DragEndEvent ) => {
+        if (event.over === null) {
+            setDropTarget(null)
+            return
+        }
+        const overId = String(event.over.id)
+        if (overId === activeId) { 
+            setDropTarget(null)
+            return
+        }
+        setDropTarget({ overId, position: getDropPosition(event)})
+    }
+
+    const handleDragCancel = () => {
+        setDropTarget(null)
     }
 
     const found = (nodes: TreeNode[], id: string): TreeNode | null => {
@@ -133,14 +153,18 @@ export default function TreeView({hideDone, rootId}: Props) {
         <DndContext sensors={sensors}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
+        onDragMove={handleDragMove}
+        onDragCancel={handleDragCancel}
         >
-            <HideDoneProvider value={hideDone}>
-                <SortableContext items={[visibleRoot.id]}>
-                    <ul>
-                        <NodeRenderer node={visibleRoot} depth={0} />
-                    </ul>
-                </SortableContext>
-            </HideDoneProvider>
+            <DropIndicatorProvider value={dropTarget}>
+                <HideDoneProvider value={hideDone}>
+                    <SortableContext items={[visibleRoot.id]}>
+                        <ul>
+                            <NodeRenderer node={visibleRoot} depth={0} />
+                        </ul>
+                    </SortableContext>
+                </HideDoneProvider>
+            </DropIndicatorProvider>
             <DragOverlay dropAnimation={null}>
                 {activeNode ? (
                     <div className="cursor-grabbing rounded-lg bg-white shadow-2xl ring-1 ring-black/5 opacity-90">

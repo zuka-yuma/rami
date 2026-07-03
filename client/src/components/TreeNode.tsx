@@ -3,13 +3,14 @@
 
 import { useSortable } from "@dnd-kit/sortable"
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
 import type { TreeNode as TreeNodeType, Status } from "../types"
 import { useState } from "react"
 import { useTreeContext } from "../contexts/TreeContext"
 import { useAddNode } from "../contexts/AddNodeContext"
 import { subtreeUrgency } from "../utils/nodeStatus"
 import { useHideDone } from "../contexts/HideDoneContext"
+import { useDropIndicator } from "../contexts/DropIndicatorContext"
+import { DropLine } from "./DropLine"
 import NodeRenderer from "./NodeRenderer"
 import NodeDetail from "./NodeDetail"
 
@@ -72,8 +73,6 @@ export default function TreeNode({ node, depth }: Props) {
             setNodeRef,
             attributes,
             listeners,
-            transform,
-            transition,
             isDragging,
         } = useSortable({
             id: node.id
@@ -87,17 +86,18 @@ export default function TreeNode({ node, depth }: Props) {
     const hideDone = useHideDone()
     const visibleChildren = hideDone ? node.children.filter(c => c.status !== "done") : node.children
 
+    const dropTarget = useDropIndicator()
+    const dropPos = dropTarget?.overId === node.id ? dropTarget.position : null
+
     return (
         // DnD: useSortable の setNodeRef を ref に、transform/transition を style に、
         // isDragging のとき opacity-40 を付ける
         <li className={`flex flex-col items-start ${isDragging ? "opacity-40" : ""}`}>
             <div ref={setNodeRef}
-            style={{
-                transform: CSS.Transform.toString(transform),
-                transition,
-            }}
-            className={`rounded bg-slate-800 text-slate-100 hover:bg-slate-700 ${node.children.length > 0 && !node.collapse ? "border-2 border-sky-600" : "border border-slate-700"}`}
+            className={`relative rounded bg-slate-800 text-slate-100 hover:bg-slate-700 ${dropPos === "inside" ? "ring-2 ring-sky-400 " : ""}${node.children.length > 0 && !node.collapse ? "border-2 border-sky-600" : "border border-slate-700"}`}
             >
+                {dropPos === "before" && <DropLine edge="before" depth={depth} />}
+                {dropPos === "after" && <DropLine edge="after" depth={depth} />}
                 {/* 上段: ハンドル・ステータス・タイトル。クリックで展開/折りたたみ */}
                 <div
                     className={`flex items-center gap-2 px-2 py-1 ${node.children.length > 0 ? "cursor-pointer" : ""}`}
