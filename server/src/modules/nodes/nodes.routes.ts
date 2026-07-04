@@ -28,7 +28,8 @@ export const nodesRoutes = async (fastify: FastifyInstance, opts: FastifyPluginO
         { preHandler: [authenticate], schema: { body: reorderSchema } },
         async (request, reply) => {
             const parentId = request.params.parentId
-            await reorderNodes(parentId, request.body.orderedIds)
+            const userId = request.user.userId
+            await reorderNodes(userId, parentId, request.body.orderedIds)
             reply.status(200).send()
         }
     )
@@ -88,7 +89,8 @@ export const nodesRoutes = async (fastify: FastifyInstance, opts: FastifyPluginO
         { preHandler: [authenticate], schema: {body: reorderSchema} },
         async (request, reply) => {
             const parentId = request.params.parentId
-            await reorderSteps(parentId, request.body.orderedIds)
+            const userId = request.user.userId
+            await reorderSteps(userId, parentId, request.body.orderedIds)
             reply.status(200).send()
         }
     )
