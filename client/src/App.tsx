@@ -5,6 +5,7 @@ import { AddNodeProvider } from './contexts/AddNodeContext'
 import TreeView from './components/TreeView'
 import Toolbar from './components/Toolbar'
 import Sidebar from './components/Sidebar'
+import { Toaster } from 'react-hot-toast'
 import { useState } from 'react'
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
   return (
     <TreeProvider>
       <AddNodeProvider>
+      <Toaster position="top-right" toastOptions={{ style: { background: "#1e293b", color: "#e2e8f0", border: "1px solid #334155" } }} />
       <div className="flex flex-col h-screen bg-slate-950 text-slate-200">
         <Toolbar
           hideDone={hideDone}
