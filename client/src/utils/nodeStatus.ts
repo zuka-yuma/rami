@@ -1,11 +1,11 @@
 // ノードのステータス●の色付け用。自分＋全子孫の中で最も緊急度の高い状態を返す。
 // 優先順位: 遅延(in_progress かつ期限切れ) > 期限切れ(todo かつ期限切れ) > in_progress > todo > done
 
-import type { TreeNode } from "../types";
+import type { Status, Priority, TreeNode } from "../types";
 
 export type Urgency = "delay" | "overdue" | "in_progress" | "todo" | "done";
 
-const isOverdue = (deadline: string | null): boolean =>
+export const isOverdue = (deadline: string | null): boolean =>
     deadline != null && new Date(deadline) < new Date();
 
 const selfUrgency = (node: TreeNode): Urgency => {
@@ -65,3 +65,27 @@ export const subtreeUrgency = (node: TreeNode): Urgency => {
     }
     return worst;
 };
+
+export const statusColor = (status: Status) => {
+    switch (status) {
+        case "todo": return "border-1 border-slate-500"
+        case "in_progress": return "bg-green-400"
+        case "done": return "bg-gray-600"
+    }
+}
+
+export const priorityColor = (priority: Priority) => {
+    switch (priority) {
+        case "high": return "bg-red-500 text-white"
+        case "medium": return "bg-orange-300"
+        case "low": return "bg-blue-200"
+    }
+}
+
+export const nextStatus = (status: Status): Status => {
+    switch (status) {
+        case "todo": return "in_progress"
+        case "in_progress": return "done"
+        case "done": return "todo"
+    }
+}

@@ -4,11 +4,11 @@
 
 import { useSortable } from "@dnd-kit/sortable"
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import type { TreeNode as TreeNodeType, Status } from "../types"
+import type { TreeNode as TreeNodeType } from "../types"
 import { useState, type MouseEvent } from "react"
 import { useTreeContext } from "../contexts/TreeContext"
 import { useAddNode } from "../contexts/AddNodeContext"
-import { subtreeUrgency, deadlineColor, stepChangeAllowed } from "../utils/nodeStatus"
+import { subtreeUrgency, deadlineColor, stepChangeAllowed, statusColor, priorityColor, nextStatus } from "../utils/nodeStatus"
 import { useHideDone } from "../contexts/HideDoneContext"
 import { useDropIndicator } from "../contexts/DropIndicatorContext"
 import { DropLine } from "./DropLine"
@@ -22,30 +22,6 @@ interface Props {
     depth: number
     headerOnly?: boolean
     onToggle?: () => void
-}
-
-const statusColor = (status: Status) => {
-    switch (status) {
-        case "todo": return "border-1 border-black-300"
-        case "in_progress": return "bg-green-400"
-        case "done": return "bg-gray-500"
-    }
-}
-
-const priorityColor = (priority: TreeNodeType["priority"]) => {
-    switch (priority) {
-        case "high": return "bg-red-500 text-white"
-        case "medium": return "bg-orange-300"
-        case "low": return "bg-blue-200"
-    }
-}
-
-const nextStatus = (status: Status): Status => {
-    switch (status) {
-        case "todo": return "in_progress"
-        case "in_progress": return "done"
-        case "done": return "todo"
-    }
 }
 
 export default function PhaseNode({ node, depth, headerOnly, onToggle }: Props) {
