@@ -15,11 +15,15 @@ const statusGlyph = (status: Status) => {
     }
 }
 
-const statusTextColor = (status: Status) => {
-    switch (status) {
-        case "done": return "text-gray-600"
-        case "in_progress": return "text-green-500"
-        case "todo": return "text-black-300"
+const isOverdue = (deadline: string | null) => deadline != null && new Date(deadline) < new Date()
+
+// ステータス●と同じ色で。遅延(in_progress かつ期限切れ)=オレンジ、期限切れ(todo)=赤。
+const statusTextColor = (step: TreeNode) => {
+    const overdue = isOverdue(step.deadline)
+    switch (step.status) {
+        case "done": return "text-gray-400"
+        case "in_progress": return overdue ? "text-orange-500" : "text-green-500"
+        case "todo": return overdue ? "text-red-500" : "text-slate-400"
     }
 }
 
@@ -31,7 +35,7 @@ export default function StepProgress({ steps }: Props) {
             {steps.map((step, index) => (
                 <span key={step.id} className="flex items-center gap-1">
                     {/* ステップ記号: ホバーでタイトルが title 属性として表示される */}
-                    <span className={statusTextColor(step.status)} title={step.title}>
+                    <span className={statusTextColor(step)} title={step.title}>
                         { statusGlyph(step.status) }
                     </span>
                     {/* 末尾以外に区切り線を入れる */}
