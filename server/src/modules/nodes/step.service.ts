@@ -2,6 +2,7 @@ import { PrismaClient } from '../../generated/prisma/index.js'
 import { PrismaPg } from '@prisma/adapter-pg'
 import { config } from '../../config.js'
 import { NotFoundError, ValidationError } from '../../utils/errors.js'
+import { propagateStatus } from './nodes.service.js'
 
 const adapter = new PrismaPg({ connectionString: config.databaseURL })
 const prisma = new PrismaClient({ adapter })
@@ -27,13 +28,20 @@ export async function reindexSteps(parentId: string) {
     })
 }
 
-export async function reorderSteps(parentId: string, orderedIds: string[]) {
+export async function reorderSteps(userId: string, parentId: string, orderedIds: string[]) {
     try {
         await prisma.$transaction(async (prisma) => {
+            const pid = parentId === "null" ? null : parentId
+            const children = await prisma.node.findMany({ where: { userId, parentId: pid } })
+            const childIds = new Set(children.map(c => c.id))
+            if(orderedIds.length !== childIds.size || orderedIds.some(id => !childIds.has(id))) {
+                throw new ValidationError()
+            }
             for (const [i, id] of orderedIds.entries()) {
                 await prisma.node.update({
                     where: {
-                        id: id
+                        id: id,
+                        userId: userId
                     },
                     data: {
                         step: i + 1
@@ -41,19 +49,29 @@ export async function reorderSteps(parentId: string, orderedIds: string[]) {
                 })
             }
         }) 
-    } catch {
+    } catch (error) {
+        if (error instanceof ValidationError) {
+            throw new ValidationError()
+        } 
         throw new NotFoundError()
     }
     
 }
 
-export async function reorderNodes(parentId: string, orderedIds: string[]) {
+export async function reorderNodes(userId: string, parentId: string, orderedIds: string[]) {
     try {
         await prisma.$transaction(async (prisma) => {
+            const pid = parentId === "null" ? null : parentId
+            const children = await prisma.node.findMany({ where: { userId, parentId: pid } })
+            const childIds = new Set(children.map(c => c.id))
+            if(orderedIds.length !== childIds.size || orderedIds.some(id => !childIds.has(id))) {
+                throw new ValidationError()
+            }
             for (const [i, id] of orderedIds. entries()) {
                 await prisma.node.update({
                     where: {
-                        id: id
+                        id: id,
+                        userId: userId
                     },
                     data: {
                         sort: i + 1
@@ -61,7 +79,10 @@ export async function reorderNodes(parentId: string, orderedIds: string[]) {
                 })
             }
         })
-    } catch {
+    } catch (error) {
+        if (error instanceof ValidationError) {
+            throw new ValidationError()
+        }      
         throw new NotFoundError()
     }
 }
@@ -154,6 +175,7 @@ export async function addSteps(userId:string, parentId:string, steps:{ title: st
                     step: (maxStep._max.step ?? 0) + i + 1,
                 }))
             })
+            await propagateStatus(prisma, userId, parentId)
             return newSteps
         } else {
             throw new ValidationError()
