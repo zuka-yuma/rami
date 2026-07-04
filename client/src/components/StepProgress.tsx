@@ -2,6 +2,7 @@
 // done = ● / in_progress = ◐ / todo = ○ を横並びで描画し、間を ── で繋ぐ。
 
 import type { TreeNode, Status } from "../types"
+import { isOverdue } from "../utils/nodeStatus"
 
 interface Props {
     steps: TreeNode[]   // phase の children
@@ -14,8 +15,6 @@ const statusGlyph = (status: Status) => {
         case "todo": return "○"
     }
 }
-
-const isOverdue = (deadline: string | null) => deadline != null && new Date(deadline) < new Date()
 
 // ステータス●と同じ色で。遅延(in_progress かつ期限切れ)=オレンジ、期限切れ(todo)=赤。
 const statusTextColor = (step: TreeNode) => {
