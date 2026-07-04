@@ -7,7 +7,7 @@ import type { TreeNode as TreeNodeType } from "../types"
 import { useState, type MouseEvent } from "react"
 import { useTreeContext } from "../contexts/TreeContext"
 import { useAddNode } from "../contexts/AddNodeContext"
-import { subtreeUrgency, deadlineColor, stepChangeAllowed, statusColor, priorityColor, nextStatus } from "../utils/nodeStatus"
+import { subtreeUrgency, deadlineColor, stepChangeAllowed, statusColor, priorityColor, nextStatus, useIsDesktop } from "../utils/nodeStatus"
 import { useHideDone } from "../contexts/HideDoneContext"
 import { useDropIndicator } from "../contexts/DropIndicatorContext"
 import { DropLine } from "./DropLine"
@@ -29,6 +29,8 @@ export default function TreeNode({ node, depth, headerOnly, onToggle }: Props) {
     const [draft, setDraft] = useState<string>(node.title)
     const [detailOpen, setDetailOpen] = useState<boolean>(false)
     const [denied, setDenied] = useState<boolean>(false)
+
+    const isDesktop = useIsDesktop()
 
     const handleStatusClick = async (e: MouseEvent) => {
         // Shift+クリックは強制。通常クリックは phase ステップの順序ルールに従う
@@ -153,7 +155,7 @@ export default function TreeNode({ node, depth, headerOnly, onToggle }: Props) {
 
 
             {!headerOnly && !node.collapse && node.children.length > 0 && (
-                depth === 0 ? (
+                depth === 0 || !isDesktop ? (
                     <SortableContext items={visibleChildren.map(children => children.id)} strategy={verticalListSortingStrategy}>
                         <ul className="flex flex-col gap-1 ml-4 mt-1">
                             {visibleChildren.map(child => (
