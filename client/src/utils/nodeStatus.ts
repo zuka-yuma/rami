@@ -2,6 +2,7 @@
 // 優先順位: 遅延(in_progress かつ期限切れ) > 期限切れ(todo かつ期限切れ) > in_progress > todo > done
 
 import type { Status, Priority, TreeNode } from "../types";
+import { useEffect, useState } from "react";
 
 export type Urgency = "delay" | "overdue" | "in_progress" | "todo" | "done";
 
@@ -88,4 +89,15 @@ export const nextStatus = (status: Status): Status => {
         case "in_progress": return "done"
         case "done": return "todo"
     }
+}
+
+export const useIsDesktop = () => {
+    const [ desktop, setDesktop ] = useState(() => window.matchMedia("(min-width: 768px)").matches)
+    useEffect(() => {
+        const mql = window.matchMedia("(min-width: 768px)")
+        const handler = () => setDesktop(mql.matches)
+        mql.addEventListener("change", handler)
+        return () => mql.removeEventListener("change", handler)
+    }, [])
+    return desktop
 }
