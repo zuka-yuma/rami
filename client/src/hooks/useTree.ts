@@ -63,8 +63,13 @@ export function useTree() {
     async function updateNode(id: string, input: UpdateNodeInput) {
         const node = {...found(tree, id)!, ...input}
         setTree(prev => updateTree(prev, id, node))
-        await update(id, input)
-        await refetch()
+        try {
+            await update(id, input)
+        } catch (e) {
+            console.error(e)
+        } finally {
+            await refetch()
+        }
     }
 
     async function removeNode(id: string) {
@@ -78,8 +83,13 @@ export function useTree() {
             const removedPrev = removeFromTree(prev, id)
             return input.parentId === null ? [...removedPrev, node] : insertIntoTree(removedPrev, input.parentId, node)
         })
-        await move(id, input)
-        await refetch()
+        try {
+            await move(id, input)
+        } catch (e) {
+            console.error(e)
+        } finally {
+            await refetch()
+        }
     }
 
     async function toggleNodeType(id: string, input: ToggleTypeInput) {
@@ -98,8 +108,13 @@ export function useTree() {
         } else {
             setTree(prev => rebuildTree(prev, parentId, input.orderedIds) as TreeNode[])
         }
-        await apiReorderSteps(parentId, input)
-        await refetch()
+        try {
+            await apiReorderSteps(parentId, input)
+        } catch (e) {
+            console.error(e)
+        } finally {
+            await refetch()
+        }
     }
 
     async function reorderNodes(parentId: string | null, input: ReorderInput) {
@@ -108,8 +123,13 @@ export function useTree() {
         } else {
             setTree(prev => rebuildTree(prev, parentId, input.orderedIds) as TreeNode[])
         }
-        await apiReorderNodes(parentId, input)
-        await refetch()
+        try {
+            await apiReorderNodes(parentId, input)
+        } catch (e) {
+            console.error(e)
+        } finally {
+            await refetch()
+        }
     }
     
     return { tree, loading, addNode, updateNode, removeNode, moveNode, toggleNodeType, addSteps, reorderSteps, reorderNodes }
