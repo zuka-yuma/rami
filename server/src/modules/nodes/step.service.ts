@@ -2,6 +2,7 @@ import { PrismaClient } from '../../generated/prisma/index.js'
 import { PrismaPg } from '@prisma/adapter-pg'
 import { config } from '../../config.js'
 import { NotFoundError, ValidationError } from '../../utils/errors.js'
+import { propagateStatus } from './nodes.service.js'
 
 const adapter = new PrismaPg({ connectionString: config.databaseURL })
 const prisma = new PrismaClient({ adapter })
@@ -174,6 +175,7 @@ export async function addSteps(userId:string, parentId:string, steps:{ title: st
                     step: (maxStep._max.step ?? 0) + i + 1,
                 }))
             })
+            await propagateStatus(prisma, userId, parentId)
             return newSteps
         } else {
             throw new ValidationError()

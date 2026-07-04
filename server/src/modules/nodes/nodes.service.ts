@@ -1,4 +1,4 @@
-import { type Status, type Node, PrismaClient } from '../../generated/prisma/index.js'
+import { type Status, type Node, PrismaClient, Prisma } from '../../generated/prisma/index.js'
 import { PrismaPg } from '@prisma/adapter-pg'
 import { config } from '../../config.js'
 import type { createNodeSchemaType, updateNodeSchemaType } from './nodes.schema.js'
@@ -14,6 +14,19 @@ export function deriveStatus(children: Node[]): Status {
     if (children.every(c => c.status === "done")) return "done"
     if (children.some(c => c.status === "in_progress")) return "in_progress"
     return "todo"
+}
+
+export async function propagateStatus(prisma: Prisma.TransactionClient, userId: string, startParentId: string | null) {
+    let pid = startParentId
+    while (pid) {
+        const children = await prisma.node.findMany({ where: { userId, parentId: pid } })
+        if (children.length === 0) break
+        const ns = deriveStatus(children)
+        const parent = await prisma.node.findUnique({ where: { userId, id: pid }})
+        if (!parent || parent.status === ns) break
+        await prisma.node.update({ where: { userId, id: pid }, data: { status: ns }})
+        pid = parent.parentId
+    }
 }
 
 export async function getAll(userId: string) {
@@ -53,6 +66,7 @@ export async function createNode(userId: string, data: createNodeSchemaType) {
         const nodeData = await prisma.node.create({
             data: createNodeData
         })
+        await propagateStatus(prisma, userId, data.parentId ?? null)
         return nodeData
     })
 }
@@ -81,15 +95,8 @@ export async function updateNode(userId: string, nodeId: string, data: updateNod
                 data: updateDatas
             })
             if (data.status !== undefined) {
-                let pid = nodeData.parentId;
-                while (pid) {
-                    const children = await prisma.node.findMany({ where: {userId, parentId: pid } })
-                    const ns = deriveStatus(children)
-                    const parent = await prisma.node.findUnique({ where: {userId, id: pid} })
-                    if (!parent || parent.status === ns) break
-                    await prisma.node.update({ where: { userId, id: pid}, data: {status: ns} })
-                    pid = parent.parentId
-                }
+                const parentId = nodeData.parentId
+                await propagateStatus(prisma, userId, parentId)
             }
             return nodeData
         })
@@ -105,12 +112,14 @@ export async function deleteNode(userId: string, nodeId: string) {
         const nodeData = await prisma.node.delete({ 
             where: { id: nodeId, userId }
         })
-        if (nodeData.parentId !== null) {
+        const oldParentId = nodeData.parentId
+        await propagateStatus(prisma, userId, oldParentId)
+        if (oldParentId !== null) {
             const parent = await prisma.node.findUnique({
-                where: { id: nodeData.parentId }
+                where: { id: oldParentId }
             })
             if (parent !== null && parent.nodetype === 'phase') {
-                await reindexSteps(nodeData.parentId)
+                await reindexSteps(oldParentId)
             }
         }
     } catch (error) {
@@ -177,6 +186,7 @@ export async function moveNode(userId: string, nodeId: string, newParentId: stri
                             }
                         })
                     }
+                    await propagateStatus(prisma, userId, newParentId)
                 }
                 if (node !== null && node.parentId !== null) {
                     const oldParent = await prisma.node.findUnique({
@@ -185,6 +195,7 @@ export async function moveNode(userId: string, nodeId: string, newParentId: stri
                             id: node.parentId
                         }
                     })
+                    await propagateStatus(prisma, userId, node.parentId)
                     if (oldParent?.nodetype === 'phase') {
                         return oldParent.id
                     }
