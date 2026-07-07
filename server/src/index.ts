@@ -6,6 +6,7 @@ import { AppError } from './utils/errors.js'
 import { authRoutes } from './modules/auth/auth.routes.js'
 import type { TypeBoxTypeProvider } from '@fastify/type-provider-typebox'
 import { nodesRoutes } from './modules/nodes/nodes.routes.js'
+import { exportRoutes } from './modules/export/export.routes.js'
 
 const server = fastify().withTypeProvider<TypeBoxTypeProvider>()
 
@@ -32,6 +33,10 @@ server.register(authRoutes, {
 
 server.register(nodesRoutes, {
     prefix: '/api/nodes'
+})
+
+server.register(exportRoutes, {
+    prefix: '/api/export'
 })
 
 server.get('/api/health', async (request, reply) => {
