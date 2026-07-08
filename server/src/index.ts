@@ -7,6 +7,7 @@ import { authRoutes } from './modules/auth/auth.routes.js'
 import type { TypeBoxTypeProvider } from '@fastify/type-provider-typebox'
 import { nodesRoutes } from './modules/nodes/nodes.routes.js'
 import { exportRoutes } from './modules/export/export.routes.js'
+import { importRoutes } from './modules/import/import.routes.js'
 
 const server = fastify().withTypeProvider<TypeBoxTypeProvider>()
 
@@ -37,6 +38,10 @@ server.register(nodesRoutes, {
 
 server.register(exportRoutes, {
     prefix: '/api/export'
+})
+
+server.register(importRoutes, {
+    prefix: '/api/import'
 })
 
 server.get('/api/health', async (request, reply) => {
