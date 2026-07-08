@@ -11,7 +11,7 @@ export async function exportCSV(userId: string) {
         for (const node of nodes) {
             const path = parentPath === "" ? node.title : parentPath + " > " + node.title
             const deadline = node.deadline ? node.deadline.toISOString() : ""
-            const line = [path, node.title, node.nodetype, node.status, node.priority, deadline, String(node.step)].map(escapeCSV).join(",")
+            const line = [path, node.title, node.nodetype, node.status, node.priority, deadline, String(node.step), String(node.sort)].map(escapeCSV).join(",")
             flatNode.push(line)
             makeCSV(flatNode, node.children, path)
         }
@@ -19,7 +19,7 @@ export async function exportCSV(userId: string) {
     }
     const tree = await getAll(userId)
     const flatNode: string[] = []
-    flatNode.push("path,title,nodetype,status,priority,deadline,step")
+    flatNode.push("path,title,nodetype,status,priority,deadline,step,sort")
     const csvList = makeCSV(flatNode, tree, "")
     const joinCSV = csvList.join("\n")
     return joinCSV
