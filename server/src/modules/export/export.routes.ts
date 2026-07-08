@@ -1,6 +1,4 @@
-import type { FastifyInstance, FastifyPluginOptions } from 'fastify'
-// import { UnauthorizedError } from '../../utils/errors.js'
-// import { isProduction } from '../../config.js'
+import type { FastifyInstance } from 'fastify'
 import { authenticate } from '../../plugins/authenticate.js'
 import { exportCSV, exportJSON } from './export.service.js'
 
