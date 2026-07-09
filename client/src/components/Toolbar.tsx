@@ -3,6 +3,8 @@
 
 import { useAddNode } from "../contexts/AddNodeContext"
 import { useAuth } from "../contexts/AuthContext"
+import { ExportMenu } from "./ExportMenu"
+import { useTreeContext } from "../contexts/TreeContext"
 
 interface Props {
     hideDone: boolean
@@ -13,6 +15,7 @@ interface Props {
 export default function Toolbar({ hideDone, onToggleHideDone, onToggleSidebar }: Props) {
     const openAdd = useAddNode()
     const { user, logout } = useAuth()
+    const { refetch } = useTreeContext()
 
     return (
         <div className="flex items-center justify-between gap-2 px-3 py-2 bg-slate-800 border-b border-slate-700 text-slate-200">
@@ -41,6 +44,9 @@ export default function Toolbar({ hideDone, onToggleHideDone, onToggleSidebar }:
                 >
                     {hideDone ? "完了表示" : "完了を隠す"}
                 </button>
+                <ExportMenu onImported={() => {
+                    refetch()
+                }} />
             </div>
             <div className="flex items-center gap-2 shrink-0 text-sm">
                 <span className="hidden sm:inline text-slate-400">{user?.name}</span>

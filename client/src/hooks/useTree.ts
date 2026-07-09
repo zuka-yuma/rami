@@ -157,6 +157,6 @@ export function useTree() {
         }
     }
     
-    return { tree, loading, addNode, updateNode, removeNode, moveNode, toggleNodeType, addSteps, reorderSteps, reorderNodes }
+    return { tree, loading, addNode, updateNode, removeNode, moveNode, toggleNodeType, addSteps, reorderSteps, reorderNodes, refetch }
 }
 
