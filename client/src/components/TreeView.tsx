@@ -2,6 +2,7 @@ import { DndContext, useSensor, useSensors, DragOverlay, PointerSensor, type Dra
 import { SortableContext } from "@dnd-kit/sortable";
 import { useTreeContext } from "../contexts/TreeContext";
 import { HideDoneProvider } from "../contexts/HideDoneContext";
+import { useDisplayMode } from "../contexts/DisplayModeContext";
 import NodeRenderer from "./NodeRenderer";
 import { useState } from "react";
 import type { TreeNode } from "../types";
@@ -14,6 +15,7 @@ interface Props {
 
 export default function TreeView({hideDone, rootId}: Props) {
     const { tree, loading, reorderNodes, reorderSteps, moveNode } = useTreeContext()
+    const { displayMode } = useDisplayMode()
     const [ activeId, setActiveId ] = useState<string | null>(null)
     const [ dropTarget, setDropTarget ] = useState<{ overId: string, position: "before" | "after" | "inside" } | null>(null)
 
@@ -116,8 +118,7 @@ export default function TreeView({hideDone, rootId}: Props) {
         const isLast = overSiblings[overSiblings.length - 1]?.id === overId
         const overRect = event.over.rect
         const activeRect = event.active.rect.current.translated ?? event.active.rect.current.initial
-        const isDesktop = window.matchMedia("(min-width: 768px)").matches
-        const isHorizontal = isDesktop && overParent != null && overParent.id !== rootId
+        const isHorizontal = displayMode === "horizontal" && overParent != null && overParent.id !== rootId
         if (activeRect === null) return "before"
         const center = isHorizontal ? activeRect.left + activeRect.width / 2 : activeRect.top + activeRect.height / 2
         const ratio = isHorizontal ? (center - overRect.left) / overRect.width : (center - overRect.top) / overRect.height

@@ -5,6 +5,7 @@ import { useAddNode } from "../contexts/AddNodeContext"
 import { useAuth } from "../contexts/AuthContext"
 import { ExportMenu } from "./ExportMenu"
 import { useTreeContext } from "../contexts/TreeContext"
+import { useDisplayMode } from "../contexts/DisplayModeContext"
 
 interface Props {
     hideDone: boolean
@@ -16,6 +17,7 @@ export default function Toolbar({ hideDone, onToggleHideDone, onToggleSidebar }:
     const openAdd = useAddNode()
     const { user, logout } = useAuth()
     const { refetch } = useTreeContext()
+    const { displayMode, setDisplayMode } = useDisplayMode()
 
     return (
         <div className="flex items-center justify-between gap-2 px-3 py-2 bg-slate-800 border-b border-slate-700 text-slate-200">
@@ -44,6 +46,26 @@ export default function Toolbar({ hideDone, onToggleHideDone, onToggleSidebar }:
                 >
                     {hideDone ? "完了表示" : "完了を隠す"}
                 </button>
+                <div className="shrink-0 flex rounded overflow-hidden">
+                    <button
+                        type="button"
+                        onClick={() => setDisplayMode("vertical")}
+                        className={`whitespace-nowrap px-2 py-1 text-sm ${displayMode === "vertical"
+                            ? "bg-slate-600 text-white"
+                            : "bg-slate-700 text-slate-200 hover:bg-slate-600"}`}
+                    >
+                        縦
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setDisplayMode("horizontal")}
+                        className={`whitespace-nowrap px-2 py-1 text-sm ${displayMode === "horizontal"
+                            ? "bg-slate-600 text-white"
+                            : "bg-slate-700 text-slate-200 hover:bg-slate-600"}`}
+                    >
+                        横
+                    </button>
+                </div>
                 <ExportMenu onImported={() => {
                     refetch()
                 }} />
