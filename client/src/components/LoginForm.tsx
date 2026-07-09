@@ -45,7 +45,7 @@ export default function LoginForm() {
     return (
         <div className="flex min-h-screen items-center justify-center bg-slate-950 p-4">
             <div className="w-full max-w-sm rounded-xl border border-slate-700 bg-slate-800 p-6 shadow-2xl">
-                <h1 className="text-2xl font-semibold text-slate-100">tree-todo</h1>
+                <h1 className="text-2xl font-semibold text-slate-100">rami</h1>
                 <p className="mt-1 mb-5 text-sm text-slate-400">
                     {mode === "login" ? "ログイン" : "アカウント登録"}
                 </p>
