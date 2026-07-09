@@ -122,7 +122,7 @@ export default function PhaseNode({ node, depth, headerOnly, onToggle }: Props) 
                             onChange={(e) => setDraft(e.target.value)}
                             onBlur={saveTitle}
                             onKeyDown={(e) => {
-                                if (e.key === "Enter") saveTitle()
+                                if (e.key === "Enter" && !e.nativeEvent.isComposing) saveTitle()
                                 if (e.key === "Escape") cancelTitle()
                             }}
                             onClick={(e) => e.stopPropagation()}

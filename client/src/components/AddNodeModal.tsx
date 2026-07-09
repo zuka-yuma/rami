@@ -73,7 +73,7 @@ export default function AddNodeModal({ parentId, onClose }: Props) {
                 </div>
 
                 <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="タイトル" autoFocus
-                    onKeyDown={(e) => { if (e.key === "Enter") handleSubmit() }}
+                    onKeyDown={(e) => { if (e.key === "Enter" && !e.nativeEvent.isComposing) handleSubmit() }}
                     className="mb-3 w-full rounded border border-slate-600 bg-slate-700 text-slate-100 placeholder-slate-400 px-2 py-1" />
 
                 <label className="mb-3 flex items-center justify-between text-sm text-slate-200">
