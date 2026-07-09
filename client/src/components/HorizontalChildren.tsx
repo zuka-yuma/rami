@@ -41,7 +41,7 @@ export function HorizontalChildren({ nodes, depth }: Props) {
             <SortableContext items={visible.map(n => n.id)}>
                 <ul className="flex flex-row items-start gap-4">
                     {visible.map(n => (
-                        <NodeRenderer key={n.id} node={n} depth={depth} headerOnly onToggle={() => handleToggle(n)} />
+                        <NodeRenderer key={n.id} node={n} depth={depth} headerOnly onToggle={() => handleToggle(n)} isOpen={n.id === open?.id} />
                     ))}
                 </ul>
             </SortableContext>

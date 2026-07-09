@@ -20,9 +20,10 @@ interface Props {
     depth: number
     headerOnly?: boolean
     onToggle?: () => void
+    isOpen?: boolean
 }
 
-export default function TreeNode({ node, depth, headerOnly, onToggle }: Props) {
+export default function TreeNode({ node, depth, headerOnly, onToggle, isOpen }: Props) {
     const { tree, updateNode, removeNode } = useTreeContext()
     const openAdd = useAddNode()
     const [editing, setEditing] = useState<boolean>(false)
@@ -78,6 +79,11 @@ export default function TreeNode({ node, depth, headerOnly, onToggle }: Props) {
     const dropPos = dropTarget?.overId === node.id ? dropTarget.position : null
 
     const toggle = onToggle ?? (() => updateNode(node.id, { collapse: !node.collapse }))
+
+    const handleAdd = () => {
+        if (headerOnly ? !isOpen : node.collapse) toggle()
+        openAdd(node.id)
+    }
 
     return (
         // DnD: useSortable の setNodeRef を ref に、transform/transition を style に、
@@ -144,7 +150,7 @@ export default function TreeNode({ node, depth, headerOnly, onToggle }: Props) {
                     <button type="button" onClick={() => setDetailOpen(!detailOpen)} className="text-xs">
                         {detailOpen ? "詳細▲" : "詳細▼"}
                     </button>
-                    <button type="button" onClick={() => openAdd(node.id)} className="text-xs">＋</button>
+                    <button type="button" onClick={handleAdd} className="text-xs">＋</button>
                     {depth !== 0 && (
                         <button type="button" onClick={handleRemove} className="text-xs text-red-400">－</button>
                     )}
