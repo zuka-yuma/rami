@@ -13,6 +13,7 @@ interface ITreeContext {
     addSteps: (parentId: string, input: AddStepsInput) => Promise<void>
     reorderSteps: (parentId: string | null, input: ReorderInput) => Promise<void>
     reorderNodes: (parentId: string | null, input: ReorderInput) => Promise<void>
+    refetch: () => Promise<void>
 }
 
 const TreeContext = createContext<ITreeContext>({
@@ -25,12 +26,13 @@ const TreeContext = createContext<ITreeContext>({
     toggleNodeType: async () => {},
     addSteps: async () => {},
     reorderSteps: async () => {},
-    reorderNodes: async () => {}
+    reorderNodes: async () => {},
+    refetch: async () => {},
 })
 
 export const TreeProvider = ( props: { children: ReactNode } ) => {
 
-    const { tree, loading, addNode, updateNode, removeNode, moveNode, toggleNodeType, addSteps, reorderSteps, reorderNodes } = useTree()
+    const { tree, loading, addNode, updateNode, removeNode, moveNode, toggleNodeType, addSteps, reorderSteps, reorderNodes, refetch } = useTree()
 
     return (
         <TreeContext.Provider
@@ -44,7 +46,8 @@ export const TreeProvider = ( props: { children: ReactNode } ) => {
                 toggleNodeType,
                 addSteps,
                 reorderSteps,
-                reorderNodes
+                reorderNodes,
+                refetch
             }}>
                 {props.children}
         </TreeContext.Provider>
