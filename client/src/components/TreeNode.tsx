@@ -126,7 +126,7 @@ export default function TreeNode({ node, depth, headerOnly, onToggle }: Props) {
                             className="bg-slate-700 text-slate-100 border border-slate-600 rounded px-1"
                         />
                     ) : (
-                        <span className={`min-w-0 truncate ${node.title ? "" : "text-slate-500"}`} onDoubleClick={() => setEditing(true)}>{node.title || "無題"}</span>
+                        <span className={`min-w-0 truncate ${node.title ? "" : "text-slate-500"}`} onDoubleClick={() => { setDraft(node.title); setEditing(true) }}>{node.title || "無題"}</span>
                     )}
                     {node.deadline && (
                         <span className={`shrink-0 text-xs ${deadlineColor(node)}`}>{node.deadline.slice(5, 7)}/{node.deadline.slice(8, 10)}</span>
