@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useForm , type SubmitHandler, type SubmitErrorHandler } from "react-hook-form"
 import { useAuth } from '../contexts/AuthContext'
+import { isAxiosError } from 'axios'
 
 interface LoginInputs {
     email: string
@@ -12,6 +13,7 @@ interface LoginInputs {
 
 export default function LoginForm() {
     const [mode, setMode] = useState<"login" | "register">("login")
+    const [serverError, setServerError] = useState<string>("")
     const {
         register,
         handleSubmit,
@@ -23,13 +25,24 @@ export default function LoginForm() {
     const { login: loginUser, register: registerUser } = useAuth()
 
     const isValid: SubmitHandler<LoginInputs> = async (data) => {
-        if (mode === "login") {
-            await loginUser(data.email, data.password)
-        } else {
-            await registerUser(data.email, data.name!, data.password)
+        setServerError("")
+        try {
+            if (mode === "login") {
+                await loginUser(data.email, data.password)
+            } else {
+                await registerUser(data.email, data.name!, data.password)
+            }
+            setValue("password", "")
+            setValue("passwordConfirm", "")
+        } catch (error) {
+            if (isAxiosError(error) && error.response?.status === 401) {
+                setServerError("メールアドレスまたはパスワードが正しくありません")
+            } else if (isAxiosError(error) && error.response?.status === 409) {
+                setServerError("このメールアドレスは既に登録されています")
+            } else {
+                setServerError("エラーが発生しました。もう一度お試しください")
+            }
         }
-        setValue("password", "")
-        setValue("passwordConfirm", "")
     }
     const isInValid: SubmitErrorHandler<LoginInputs> = (errors) => {
         console.log(errors)
@@ -52,15 +65,17 @@ export default function LoginForm() {
 
                 {/* ログイン / 登録の切り替えタブ */}
                 <div className="mb-5 flex rounded-lg bg-slate-900 p-1">
-                    <button type="button" onClick={() => { setMode("login"); reset() }}
+                    <button type="button" onClick={() => { setMode("login"); reset(); setServerError("") }}
                         className={`flex-1 rounded-md py-1.5 text-sm transition ${mode === "login" ? "bg-slate-700 text-white" : "text-slate-400 hover:text-slate-200"}`}>
                         ログイン
                     </button>
-                    <button type="button" onClick={() => { setMode("register"); reset() }}
+                    <button type="button" onClick={() => { setMode("register"); reset(); setServerError("") }}
                         className={`flex-1 rounded-md py-1.5 text-sm transition ${mode === "register" ? "bg-slate-700 text-white" : "text-slate-400 hover:text-slate-200"}`}>
                         登録
                     </button>
                 </div>
+
+                {serverError && <p className="mb-3 text-sm text-red-400">{serverError}</p>}
 
                 <form onSubmit={handleSubmit(isValid, isInValid)} className="flex flex-col gap-4">
                     <div>
