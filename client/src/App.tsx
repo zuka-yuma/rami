@@ -2,6 +2,7 @@ import { useAuth } from './contexts/AuthContext'
 import LoginForm from './components/LoginForm'
 import { TreeProvider } from './contexts/TreeContext'
 import { AddNodeProvider } from './contexts/AddNodeContext'
+import { DisplayModeProvider } from './contexts/DisplayModeContext'
 import TreeView from './components/TreeView'
 import Toolbar from './components/Toolbar'
 import Sidebar from './components/Sidebar'
@@ -29,6 +30,7 @@ function App() {
   return (
     <TreeProvider>
       <AddNodeProvider>
+      <DisplayModeProvider>
       <Toaster position="top-right" toastOptions={{ style: { background: "#1e293b", color: "#e2e8f0", border: "1px solid #334155" } }} />
       <div className="flex flex-col h-screen bg-slate-950 text-slate-200">
         <Toolbar
@@ -50,6 +52,7 @@ function App() {
           </main>
         </div>
       </div>
+      </DisplayModeProvider>
       </AddNodeProvider>
     </TreeProvider>
   )
