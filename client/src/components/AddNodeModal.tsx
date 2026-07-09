@@ -80,9 +80,9 @@ export default function AddNodeModal({ parentId, onClose }: Props) {
                     優先度
                     <select value={priority} onChange={(e) => setPriority(e.target.value as Priority)}
                         className="rounded border border-slate-600 bg-slate-700 text-slate-100 px-2 py-1">
-                        <option value="high">高</option>
-                        <option value="medium">中</option>
-                        <option value="low">低</option>
+                        <option value="high">high</option>
+                        <option value="medium">medium</option>
+                        <option value="low">low</option>
                     </select>
                 </label>
 

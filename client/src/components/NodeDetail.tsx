@@ -128,9 +128,9 @@ export default function NodeDetail({ node }: Props) {
                         onChange={(e) => updateNode(node.id, { priority: e.target.value as Priority })}
                         className="ml-1 border border-slate-600 bg-slate-700 text-slate-100 rounded px-1"
                     >
-                        <option value="high">高</option>
-                        <option value="medium">中</option>
-                        <option value="low">低</option>
+                        <option value="high">high</option>
+                        <option value="medium">medium</option>
+                        <option value="low">low</option>
                     </select>
                 </label>
             </div>
