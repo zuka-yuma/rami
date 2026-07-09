@@ -22,9 +22,10 @@ interface Props {
     depth: number
     headerOnly?: boolean
     onToggle?: () => void
+    isOpen?: boolean
 }
 
-export default function PhaseNode({ node, depth, headerOnly, onToggle }: Props) {
+export default function PhaseNode({ node, depth, headerOnly, onToggle, isOpen }: Props) {
     const { tree, updateNode, removeNode } = useTreeContext()
     const openAdd = useAddNode()
     const [editing, setEditing] = useState<boolean>(false)
@@ -81,6 +82,11 @@ export default function PhaseNode({ node, depth, headerOnly, onToggle }: Props) 
 
     const toggle = onToggle ?? (() => updateNode(node.id, { collapse: !node.collapse }))
 
+    const handleAdd = () => {
+        if (headerOnly ? !isOpen : node.collapse) toggle()
+        openAdd(node.id)
+    }
+
     return (
         // DnD: useSortable の setNodeRef を ref に、transform/transition を style に、
         // isDragging のとき opacity-40 を付ける
@@ -122,7 +128,7 @@ export default function PhaseNode({ node, depth, headerOnly, onToggle }: Props) 
                             onChange={(e) => setDraft(e.target.value)}
                             onBlur={saveTitle}
                             onKeyDown={(e) => {
-                                if (e.key === "Enter") saveTitle()
+                                if (e.key === "Enter" && !e.nativeEvent.isComposing) saveTitle()
                                 if (e.key === "Escape") cancelTitle()
                             }}
                             onClick={(e) => e.stopPropagation()}
@@ -130,7 +136,7 @@ export default function PhaseNode({ node, depth, headerOnly, onToggle }: Props) 
                             className="bg-slate-700 text-slate-100 border border-slate-600 rounded px-1"
                         />
                     ) : (
-                        <span className={`min-w-0 truncate ${node.title ? "" : "text-slate-500"}`} onDoubleClick={() => setEditing(true)}>{node.title || "無題"}</span>
+                        <span className={`min-w-0 truncate ${node.title ? "" : "text-slate-500"}`} onDoubleClick={() => { setDraft(node.title); setEditing(true) }}>{node.title || "無題"}</span>
                     )}
                     {node.deadline && (
                         <span className={`shrink-0 text-xs ${deadlineColor(node)}`}>{node.deadline.slice(5, 7)}/{node.deadline.slice(8, 10)}</span>
@@ -148,7 +154,7 @@ export default function PhaseNode({ node, depth, headerOnly, onToggle }: Props) 
                     <button type="button" onClick={() => setDetailOpen(!detailOpen)} className="text-xs">
                         {detailOpen ? "詳細▲" : "詳細▼"}
                     </button>
-                    <button type="button" onClick={() => openAdd(node.id)} className="text-xs">＋</button>
+                    <button type="button" onClick={handleAdd} className="text-xs">＋</button>
                     {depth !== 0 && (
                         <button type="button" onClick={handleRemove} className="text-xs text-red-400">－</button>
                     )}

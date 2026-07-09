@@ -73,16 +73,16 @@ export default function AddNodeModal({ parentId, onClose }: Props) {
                 </div>
 
                 <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="タイトル" autoFocus
-                    onKeyDown={(e) => { if (e.key === "Enter") handleSubmit() }}
+                    onKeyDown={(e) => { if (e.key === "Enter" && !e.nativeEvent.isComposing) handleSubmit() }}
                     className="mb-3 w-full rounded border border-slate-600 bg-slate-700 text-slate-100 placeholder-slate-400 px-2 py-1" />
 
                 <label className="mb-3 flex items-center justify-between text-sm text-slate-200">
                     優先度
                     <select value={priority} onChange={(e) => setPriority(e.target.value as Priority)}
                         className="rounded border border-slate-600 bg-slate-700 text-slate-100 px-2 py-1">
-                        <option value="high">高</option>
-                        <option value="medium">中</option>
-                        <option value="low">低</option>
+                        <option value="high">high</option>
+                        <option value="medium">medium</option>
+                        <option value="low">low</option>
                     </select>
                 </label>
 

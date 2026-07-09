@@ -26,13 +26,13 @@ export function HorizontalChildren({ nodes, depth }: Props) {
 
     // 展開する時は同じ親の他を畳む(1つだけ開く)
     const handleToggle = (target: TreeNode) => {
-        if (target.collapse) {
+        if (target.id === open?.id) {
+            updateNode(target.id, { collapse: true });
+        } else {
             nodes.forEach(n => {
                 if (n.id === target.id) updateNode(n.id, { collapse: false });
                 else if (!n.collapse) updateNode(n.id, { collapse: true });
             });
-        } else {
-            updateNode(target.id, { collapse: true });
         }
     };
 
@@ -41,7 +41,7 @@ export function HorizontalChildren({ nodes, depth }: Props) {
             <SortableContext items={visible.map(n => n.id)}>
                 <ul className="flex flex-row items-start gap-4">
                     {visible.map(n => (
-                        <NodeRenderer key={n.id} node={n} depth={depth} headerOnly onToggle={() => handleToggle(n)} />
+                        <NodeRenderer key={n.id} node={n} depth={depth} headerOnly onToggle={() => handleToggle(n)} isOpen={n.id === open?.id} />
                     ))}
                 </ul>
             </SortableContext>

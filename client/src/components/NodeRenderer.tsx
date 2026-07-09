@@ -12,11 +12,13 @@ interface Props {
     headerOnly?: boolean
     // collapse トグルの差し替え（アコーディオン用）。無ければ通常のトグル
     onToggle?: () => void
+    // アコーディオン内で自分が現在表示中(開いている)かどうか
+    isOpen?: boolean
 }
 
-export default function NodeRenderer({ node, depth, headerOnly, onToggle }: Props) {
+export default function NodeRenderer({ node, depth, headerOnly, onToggle, isOpen }: Props) {
     if (node.nodeType === "phase") {
-        return <PhaseNode node={node} depth={depth} headerOnly={headerOnly} onToggle={onToggle} />
+        return <PhaseNode node={node} depth={depth} headerOnly={headerOnly} onToggle={onToggle} isOpen={isOpen} />
     }
-    return <TreeNode node={node} depth={depth} headerOnly={headerOnly} onToggle={onToggle} />
+    return <TreeNode node={node} depth={depth} headerOnly={headerOnly} onToggle={onToggle} isOpen={isOpen} />
 }
