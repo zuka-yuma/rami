@@ -109,11 +109,11 @@ export async function toggleType(userId: string, nodeId: string, newType: string
                         id: nodeId
                     },
                     data: {
-                        nodetype: newType
+                        nodeType: newType
                     }
                 })
             }
-            if (parent?.nodetype === 'task' && newType === 'phase') {
+            if (parent?.nodeType === 'task' && newType === 'phase') {
                 let i:number = 1
                 for (const child of parent.children) {
                     await prisma.node.update({
@@ -126,7 +126,7 @@ export async function toggleType(userId: string, nodeId: string, newType: string
                     })
                     i++
                 }
-            } else if (parent?.nodetype === 'phase' && newType === 'task') {
+            } else if (parent?.nodeType === 'phase' && newType === 'task') {
                 for (const child of parent.children) {
                     await prisma.node.update({
                         where: {
@@ -155,7 +155,7 @@ export async function addSteps(userId:string, parentId:string, steps:{ title: st
         if (parent === null) {
             throw new NotFoundError()
         }
-        if (parent.nodetype === 'phase') {
+        if (parent.nodeType === 'phase') {
             const maxStep = await prisma.node.aggregate({
                 where: {
                     parentId: parentId
@@ -169,7 +169,7 @@ export async function addSteps(userId:string, parentId:string, steps:{ title: st
                     userId: userId,
                     parentId: parentId,
                     title: step.title,
-                    nodetype: step.nodeType,
+                    nodeType: step.nodeType,
                     priority: 'medium',
                     deadline: null,
                     step: (maxStep._max.step ?? 0) + i + 1,

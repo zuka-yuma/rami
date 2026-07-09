@@ -10,7 +10,7 @@ export function buildTree(flatNodes:Node[]) {
             nodes.sort((a, b) => a.sort - b.sort)
         }
         for (const node of nodes) {
-            sortChildren(node.children, node.nodetype)
+            sortChildren(node.children, node.nodeType)
         }
     }
 

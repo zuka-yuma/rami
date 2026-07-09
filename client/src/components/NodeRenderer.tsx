@@ -1,4 +1,4 @@
-// ノードの nodetype に応じて TreeNode か PhaseNode を出し分けるディスパッチャ。
+// ノードの nodeType に応じて TreeNode か PhaseNode を出し分けるディスパッチャ。
 // ツリー描画の children map で毎回分岐を書く重複を防ぐ。
 
 import type { TreeNode as TreeNodeType } from "../types"
@@ -15,7 +15,7 @@ interface Props {
 }
 
 export default function NodeRenderer({ node, depth, headerOnly, onToggle }: Props) {
-    if (node.nodetype === "phase") {
+    if (node.nodeType === "phase") {
         return <PhaseNode node={node} depth={depth} headerOnly={headerOnly} onToggle={onToggle} />
     }
     return <TreeNode node={node} depth={depth} headerOnly={headerOnly} onToggle={onToggle} />
