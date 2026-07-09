@@ -36,7 +36,7 @@ model Node {
   parentId String?  @map("parent_id")
   parent   Node?    @relation("NodeToNode", fields: [parentId], references: [id], onDelete: Cascade)
   // 状態系
-  nodetype NodeType @default(task) @map("node_type")
+  nodeType NodeType @default(task) @map("node_type")
   status   Status   @default(todo)
   priority Priority @default(medium)
   // 期限

@@ -49,7 +49,7 @@ export default function NodeDetail({ node }: Props) {
     const dayRef = useRef<HTMLInputElement>(null)
 
     const handleToggleType = async() => {
-        const newType = node.nodetype === "task" ? "phase" : "task"
+        const newType = node.nodeType === "task" ? "phase" : "task"
         await toggleNodeType(node.id, {nodeType: newType})
     }
 
@@ -214,7 +214,7 @@ export default function NodeDetail({ node }: Props) {
                     onClick={handleToggleType}
                     className="px-2 py-1 bg-slate-700 text-slate-200 rounded hover:bg-slate-600"
                 >
-                    {node.nodetype === "task" ? "→ Phase" : "→ Task"}
+                    {node.nodeType === "task" ? "→ Phase" : "→ Task"}
                 </button>
             </div>
         </div>

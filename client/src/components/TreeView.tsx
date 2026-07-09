@@ -46,9 +46,9 @@ export default function TreeView({hideDone, rootId}: Props) {
             if (parent === overParent) {
                 if (!overParent) {
                     await reorderNodes(null, {orderedIds})
-                } else if (overParent.nodetype === "phase") {
+                } else if (overParent.nodeType === "phase") {
                     await reorderSteps(overParent.id, {orderedIds})
-                } else if (overParent.nodetype === "task") {
+                } else if (overParent.nodeType === "task") {
                     await reorderNodes(overParent.id, {orderedIds})
                 }
             } else {
@@ -56,9 +56,9 @@ export default function TreeView({hideDone, rootId}: Props) {
                 await moveNode(activeId, { parentId: overParent?.id ?? null})
                 if (!overParent) {
                     await reorderNodes(null, {orderedIds})
-                } else if (overParent.nodetype === "phase") {
+                } else if (overParent.nodeType === "phase") {
                     await reorderSteps(overParent.id, {orderedIds})
-                } else if (overParent.nodetype === "task") {
+                } else if (overParent.nodeType === "task") {
                     await reorderNodes(overParent.id, {orderedIds})
                 }
             }
@@ -67,9 +67,9 @@ export default function TreeView({hideDone, rootId}: Props) {
             const overChildIds = overNode.children.map(n => n.id).filter(id => id !== activeId)
             const orderedIds = overNode.collapse ? [activeId, ...overChildIds] : [...overChildIds, activeId]
             await moveNode(activeId, { parentId: overId})
-            if (overNode.nodetype === "phase") {
+            if (overNode.nodeType === "phase") {
                 await reorderSteps(overNode.id, {orderedIds})
-            } else if (overNode.nodetype === "task") {
+            } else if (overNode.nodeType === "task") {
                 await reorderNodes(overNode.id, {orderedIds})
             }
         }

@@ -40,7 +40,7 @@ export async function createNode(userId: string, data: createNodeSchemaType) {
             userId: userId,
             parentId: data.parentId ?? null,
             title: data.title,
-            nodetype: data.nodeType,
+            nodeType: data.nodeType,
             priority: data.priority,
             deadline: data.deadline ? new Date(data.deadline) : null,
             step: 0,
@@ -53,10 +53,10 @@ export async function createNode(userId: string, data: createNodeSchemaType) {
             if (!parent) {
                 throw new NotFoundError()
             } else {
-                if (parent.nodetype === 'phase') {
+                if (parent.nodeType === 'phase') {
                     const phaseMax = await prisma.node.aggregate({ where: { userId: userId, parentId: data.parentId }, _max: { step: true } })
                     createNodeData.step = (phaseMax._max.step ?? 0) + 1
-                } else if (parent.nodetype ===  'task') {
+                } else if (parent.nodeType ===  'task') {
                     const taskMax = await prisma.node.aggregate({ where: { userId: userId, parentId: data.parentId }, _max: { sort: true } })
                     createNodeData.sort = (taskMax._max.sort ?? 0) + 1
                 }
@@ -118,7 +118,7 @@ export async function deleteNode(userId: string, nodeId: string) {
             const parent = await prisma.node.findUnique({
                 where: { id: oldParentId }
             })
-            if (parent !== null && parent.nodetype === 'phase') {
+            if (parent !== null && parent.nodeType === 'phase') {
                 await reindexSteps(oldParentId)
             }
         }
@@ -155,7 +155,7 @@ export async function moveNode(userId: string, nodeId: string, newParentId: stri
                             id: newParentId
                         }
                     })
-                    if (parent?.nodetype === 'phase') {
+                    if (parent?.nodeType === 'phase') {
                         const maxStep = await prisma.node.aggregate({
                             where: {
                                 parentId: newParentId
@@ -170,7 +170,7 @@ export async function moveNode(userId: string, nodeId: string, newParentId: stri
                                 step: (maxStep._max.step ?? 0) + 1
                             }
                         })
-                    } else if (parent?.nodetype === 'task') {
+                    } else if (parent?.nodeType === 'task') {
                         const maxSort = await prisma.node.aggregate({
                             where: {
                                 parentId: newParentId
@@ -196,7 +196,7 @@ export async function moveNode(userId: string, nodeId: string, newParentId: stri
                         }
                     })
                     await propagateStatus(prisma, userId, node.parentId)
-                    if (oldParent?.nodetype === 'phase') {
+                    if (oldParent?.nodeType === 'phase') {
                         return oldParent.id
                     }
                 }

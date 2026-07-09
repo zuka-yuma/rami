@@ -47,7 +47,7 @@ export function HorizontalChildren({ nodes, depth }: Props) {
             </SortableContext>
             {open && open.children.length > 0 && (
                 <div style={{ marginLeft: `${openIndex * ITEM_REM}rem` }}>
-                    {open.nodetype === "phase" && <StepProgress steps={open.children} />}
+                    {open.nodeType === "phase" && <StepProgress steps={open.children} />}
                     <HorizontalChildren nodes={open.children} depth={depth + 1} />
                 </div>
             )}

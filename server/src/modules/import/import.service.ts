@@ -13,7 +13,7 @@ export async function importJSON(userId: string, data: importSchemaType) {
                 userId: userId,
                 parentId: parentId,
                 title: data.title,
-                nodetype: data.nodetype,
+                nodeType: data.nodeType,
                 status: data.status,
                 priority: data.priority,
                 deadline: data.deadline ? new Date(data.deadline) : null,

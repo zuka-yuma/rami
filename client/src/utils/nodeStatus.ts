@@ -34,7 +34,7 @@ const findNode = (nodes: TreeNode[], id: string): TreeNode | null => {
 export const stepChangeAllowed = (node: TreeNode, tree: TreeNode[]): boolean => {
     if (node.parentId == null) return true;
     const parent = findNode(tree, node.parentId);
-    if (!parent || parent.nodetype !== "phase") return true;
+    if (!parent || parent.nodeType !== "phase") return true;
     const sib = parent.children;
     const idx = sib.findIndex(s => s.id === node.id);
     let lastDone = -1;

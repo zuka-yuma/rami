@@ -3,7 +3,7 @@ export type Node = {
     title: string
     userId: string
     parentId: string | null
-    nodetype: NodeType
+    nodeType: NodeType
     status: Status
     priority: Priority
     deadline: string | null
