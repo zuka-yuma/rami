@@ -1,37 +1,46 @@
 services:
   db:
-    image: postgres:17-alpine
+    image: postgres:18-alpine
     restart: always
     container_name: postgres
     env_file: ./.env
     volumes:
-      - db:/postgres
+      - db:/var/lib/postgresql
     ports:
       - "5432:5432"
 
   server:
-    build: ./server
+    build:
+      context: ./server
+      dockerfile: Dockerfile.dev
     container_name: nodejs
-    env_file: 
+    env_file:
       - ./.env
       - ./server/.env
     ports:
       - "3001:3001"
-    depends_on: 
+    depends_on:
       - db
-  
+    volumes:
+      - ./server:/app
+      - server_node_modules:/app/node_modules
+
   client:
-    build: ./client
+    build:
+      context: ./client
+      dockerfile: Dockerfile.dev
     container_name: vite
+    environment:
+      - VITE_PROXY_TARGET=http://server:3001
     ports:
       - "3002:3002"
     depends_on:
       - server
     volumes:
       - ./client:/app
-      - client:/app/node_modules
-      
+      - client_node_modules:/app/node_modules
 
 volumes:
   db:
-  client:
+  server_node_modules:
+  client_node_modules:
