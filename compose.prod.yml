@@ -33,6 +33,16 @@ services:
       - ./server/certs/cert.pem:/etc/nginx/certs/cert.pem
       - ./server/certs/cert-key.pem:/etc/nginx/certs/cert-key.pem
 
+  backup:
+    build: ./backup
+    container_name: cron
+    env_file:
+      - ./.env
+    depends_on:
+      - db
+    volumes:
+    - backup:/app/backup
 
 volumes:
   db:
+  backup:
