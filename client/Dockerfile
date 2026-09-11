@@ -13,6 +13,9 @@ COPY ./public /app/public
 COPY package-lock.json /app/
 COPY ./src /app/src
 
+ARG VITE_SENTRY_DSN
+ENV VITE_SENTRY_DSN=$VITE_SENTRY_DSN
+
 RUN npm run build
 
 FROM nginx:1.31.2-alpine AS runner

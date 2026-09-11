@@ -21,7 +21,10 @@ services:
       - db
   
   client:
-    build: ./client
+    build:
+      context: ./client
+      args:
+        VITE_SENTRY_DSN: ${VITE_SENTRY_DSN}
     container_name: vite
     env_file: ./.env
     ports:
