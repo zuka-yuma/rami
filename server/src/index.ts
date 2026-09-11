@@ -8,8 +8,14 @@ import type { TypeBoxTypeProvider } from '@fastify/type-provider-typebox'
 import { nodesRoutes } from './modules/nodes/nodes.routes.js'
 import { exportRoutes } from './modules/export/export.routes.js'
 import { importRoutes } from './modules/import/import.routes.js'
+import * as Sentry from "@sentry/node"
 
 const server = fastify().withTypeProvider<TypeBoxTypeProvider>()
+
+Sentry.init({
+    dsn: process.env.SENTRY_DSN,
+    tracesSampleRate: 1.0,
+})
 
 server.setErrorHandler((error, request, reply) => {
     if (error instanceof AppError) {

@@ -23,6 +23,7 @@
     "@fastify/type-provider-typebox": "^6.1.0",
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.6.0",
+    "@sentry/node": "^10.74.0",
     "@sinclair/typebox": "^0.34.49",
     "@types/pg": "^8.20.0",
     "bcrypt": "^6.0.0",
