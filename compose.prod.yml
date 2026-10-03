@@ -12,14 +12,14 @@ services:
   server:
     build: ./server
     container_name: nodejs
-    env_file: 
+    env_file:
       - ./.env
       - ./server/.env
     ports:
       - "3001:3001"
-    depends_on: 
+    depends_on:
       - db
-  
+
   client:
     build:
       context: ./client
@@ -44,7 +44,7 @@ services:
     depends_on:
       - db
     volumes:
-    - backup:/app/backup
+      - backup:/app/backup
 
 volumes:
   db:
