@@ -24,5 +24,4 @@ export const authenticate = async (request: FastifyRequest, reply: FastifyReply)
     } catch {
         throw new UnauthorizedError()
     }
-    
 }
