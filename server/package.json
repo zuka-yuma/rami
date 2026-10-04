@@ -10,7 +10,8 @@
     "test": "vitest run",
     "lint": "eslint .",
     "db:migrate": "prisma migrate dev",
-    "db:generate": "prisma generate"
+    "db:generate": "prisma generate",
+    "testdb:migrate": "DATABASE_URL=postgres://postgres:postgres@localhost:5432/test_rami prisma migrate deploy"
   },
   "keywords": [],
   "author": "",
