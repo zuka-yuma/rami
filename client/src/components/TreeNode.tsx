@@ -4,10 +4,11 @@
 import { useSortable } from "@dnd-kit/sortable"
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import type { TreeNode as TreeNodeType } from "../types"
-import { useState, type MouseEvent } from "react"
+import { useState } from "react"
 import { useTreeContext } from "../contexts/TreeContext"
 import { useAddNode } from "../contexts/AddNodeContext"
-import { subtreeUrgency, deadlineColor, stepChangeAllowed, statusColor, priorityColor, nextStatus } from "../utils/nodeStatus"
+import { subtreeUrgency, deadlineColor, statusColor, priorityColor } from "../utils/nodeStatus"
+import { useStatusCycle } from "../hooks/useStatusCycle"
 import { useDisplayMode } from "../contexts/DisplayModeContext"
 import { useHideDone } from "../contexts/HideDoneContext"
 import { useDropIndicator } from "../contexts/DropIndicatorContext"
@@ -25,24 +26,15 @@ interface Props {
 }
 
 export default function TreeNode({ node, depth, headerOnly, onToggle, isOpen }: Props) {
-    const { tree, updateNode, removeNode } = useTreeContext()
+    const { updateNode, removeNode } = useTreeContext()
     const openAdd = useAddNode()
     const [editing, setEditing] = useState<boolean>(false)
     const [draft, setDraft] = useState<string>(node.title)
     const [detailOpen, setDetailOpen] = useState<boolean>(false)
-    const [denied, setDenied] = useState<boolean>(false)
+    // ステータスドットの判定・強制手段(Shift+クリック / 長押し)は useStatusCycle に集約
+    const { denied, pressing, dotHandlers } = useStatusCycle(node)
 
     const { displayMode } = useDisplayMode()
-
-    const handleStatusClick = async (e: MouseEvent) => {
-        // Shift+クリックは強制。通常クリックは phase ステップの順序ルールに従う
-        if (!e.shiftKey && !stepChangeAllowed(node, tree)) {
-            setDenied(true)
-            setTimeout(() => setDenied(false), 800)
-            return
-        }
-        await updateNode(node.id, { status: nextStatus(node.status)})
-    }
 
     const handleRemove = async () => {
         if (!window.confirm(`「${node.title}」を削除しますか？子も全て削除されます`)) return
@@ -112,12 +104,20 @@ export default function TreeNode({ node, depth, headerOnly, onToggle, isOpen }: 
                     </button>
 
                     {/* ステータスドット: クリックで状態を循環（展開はしない） */}
-                    <button
-                        type="button"
-                        onClick={(e) => { e.stopPropagation(); handleStatusClick(e) }}
-                        className={`inline-block w-3 h-3 rounded-full ${dotColor}`}
-                        aria-label="status"
-                    />
+                    <span className="relative inline-flex shrink-0 items-center justify-center">
+                        {pressing && (
+                            <span
+                                aria-hidden="true"
+                                className="force-ring pointer-events-none absolute h-3 w-3 rounded-full ring-2 ring-sky-400"
+                            />
+                        )}
+                        <button
+                            type="button"
+                            className={`inline-block h-3 w-3 touch-none select-none rounded-full ${dotColor}`}
+                            aria-label="status"
+                            {...dotHandlers}
+                        />
+                    </span>
 
                     {editing ? (
                         <input
