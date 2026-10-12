@@ -1,23 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { getPhaseProgress } from './phaseProgress.js'
-import type { Node, TreeNode } from '../types/index.js'
-
-const base = (): Node => ({
-  id: `node-0`,
-  title: "sample",
-  userId: "user",
-  parentId: null,
-  nodeType: "task",
-  status: "todo",
-  priority: "medium",
-  deadline: null,
-  sort: 0,
-  step: 0,
-  collapse: false,
-  createAt: '2026-01-01T00:00:00Z',
-  updateAt: '2026-01-01T00:00:00Z'
-})
-const node = (overrides: Partial<Node> = {}): Node => ({ ...base(), ...overrides })
+import type { TreeNode } from '../types/index.js'
+import { node } from '../test/factory.js'
 
 describe("get phase progress", () => {
   it("no child", () => {
