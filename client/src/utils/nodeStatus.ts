@@ -38,6 +38,9 @@ export const stepChangeAllowed = (node: TreeNode, tree: TreeNode[]): boolean => 
     if (!parent || parent.nodeType !== "phase") return true;
     const sib = parent.children;
     const idx = sib.findIndex(s => s.id === node.id);
+    // 兄弟の中に自分が見つからない場合。slice(0, -1) は「最後以外の全兄弟」になり
+    // 無関係な兄弟を見て拒否してしまうため、判定せず許可する。
+    if (idx < 0) return true;
     const before = sib.slice(0, idx);
     if (node.status === "done") return true;
     if (node.status === "todo") return before.every(s => s.status !== "todo");
