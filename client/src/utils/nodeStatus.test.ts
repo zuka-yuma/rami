@@ -47,4 +47,17 @@ describe("step change allowed", () => {
   it("done todo in_progress", () => {
     expect(allowPhaseFlags(["done", "todo", "in_progress"])).toEqual([true, true, false])
   })
+
+  it("not a sibling", () => {
+    const children: TreeNode[] = (["done", "todo", "todo"] as Status[]).map((status, i) => ({
+      ...node({ id: `c${i}`, parentId: "p", status, step: i + 1 }),
+      children: []
+    }))
+    const tree: TreeNode = {
+      ...node({ nodeType: "phase", id: "p", parentId: null }), children
+    }
+    // 親の children に含まれないノード。findIndex が -1 を返す経路。
+    const orphan: TreeNode = { ...node({ id: "ghost", parentId: "p", status: "todo" }), children: [] }
+    expect(stepChangeAllowed(orphan, [tree])).toEqual(true)
+  })
 })
