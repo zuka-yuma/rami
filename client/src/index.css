@@ -106,3 +106,21 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
+
+/* ステータスドットの長押し中に広がるリング。
+   広がりきった瞬間が「強制が成立した」タイミングになるよう、
+   useStatusCycle の LONG_PRESS_MS と duration を揃えている。 */
+@keyframes force-ring {
+  from {
+    transform: scale(0.6);
+    opacity: 0.9;
+  }
+  to {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+
+.force-ring {
+  animation: force-ring 500ms ease-out forwards;
+}
