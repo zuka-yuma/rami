@@ -27,9 +27,10 @@ const findNode = (nodes: TreeNode[], id: string): TreeNode | null => {
 };
 
 // phase のステップの status 変更が順序ルール上許可されるか。
-// - 最後の done 以前(手前)は自由
-// - それより後ろ: todo→in_progress は「最後の in_progress の後の最初の todo」だけ、
-//   in_progress→done は「最後の done の後の最初の in_progress」だけ
+// 「手前に未着手/未完了が残っていれば進めない」という一つのルールで表現する。
+// - done → todo に戻すのは常に自由
+// - todo → in_progress は、手前に todo が残っていなければ可(in_progress は複数持てる)
+// - in_progress → done は、手前が全て done のときだけ可
 // phase の子でなければ常に true(自由)
 export const stepChangeAllowed = (node: TreeNode, tree: TreeNode[]): boolean => {
     if (node.parentId == null) return true;
@@ -37,17 +38,10 @@ export const stepChangeAllowed = (node: TreeNode, tree: TreeNode[]): boolean => 
     if (!parent || parent.nodeType !== "phase") return true;
     const sib = parent.children;
     const idx = sib.findIndex(s => s.id === node.id);
-    let lastDone = -1;
-    for (let i = 0; i < sib.length; i++) if (sib[i].status === "done") lastDone = i;
-    if (idx <= lastDone) return true;
-    if (node.status === "todo") {
-        let lastIp = -1;
-        for (let i = 0; i < sib.length; i++) if (sib[i].status === "in_progress") lastIp = i;
-        return idx === sib.findIndex((s, i) => i > lastIp && s.status === "todo");
-    }
-    if (node.status === "in_progress") {
-        return idx === sib.findIndex((s, i) => i > lastDone && s.status === "in_progress");
-    }
+    const before = sib.slice(0, idx);
+    if (node.status === "done") return true;
+    if (node.status === "todo") return before.every(s => s.status !== "todo");
+    if (node.status === "in_progress") return before.every(s => s.status === "done");
     return true;
 };
 
