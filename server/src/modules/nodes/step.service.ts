@@ -14,7 +14,7 @@ export async function reindexSteps(parentId: string) {
             orderBy: { step: 'asc' }
         })
         let i:number = 1
-        for (let child of children) {
+        for (const child of children) {
             await prisma.node.update({
                 where: {
                     id: child.id

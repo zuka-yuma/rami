@@ -1,11 +1,11 @@
-import type { FastifyInstance, FastifyPluginOptions } from "fastify";
+import type { FastifyInstance } from "fastify";
 import { createNode, deleteNode, getAll, moveNode, updateNode } from "./nodes.service.js";
 import { authenticate } from "../../plugins/authenticate.js";
 import { addStepsSchema, createNodeSchema, moveNodeSchema, reorderSchema, toggleTypeSchema, updateNodeSchema, type addStepsSchemaType, type createNodeSchemaType, type moveNodeSchemaType, type reorderSchemaType, type toggleTypeSchemaType, type updateNodeSchemaType } from "./nodes.schema.js";
 import { addSteps, reorderNodes, reorderSteps, toggleType } from "./step.service.js";
 
 
-export const nodesRoutes = async (fastify: FastifyInstance, opts: FastifyPluginOptions) => {
+export const nodesRoutes = async (fastify: FastifyInstance) => {
     fastify.get('', 
         { preHandler: [authenticate] },
         async (request, reply) => {
