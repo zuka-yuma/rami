@@ -16,10 +16,6 @@ export function generateRefreshToken(userId: string) {
 }
 
 export function verifyToken(token: string) {
-    try {
-        const user = jwt.verify(token, config.jwt.secret)
-        return user
-    } catch (error) {
-        throw error
-    }
+    const user = jwt.verify(token, config.jwt.secret)
+    return user
 }

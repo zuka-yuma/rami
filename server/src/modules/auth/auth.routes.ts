@@ -1,12 +1,12 @@
 import { register, login, refresh, logout, getUser } from './auth.service.js'
 import type { registerSchemaType, loginSchemaType } from './auth.schema.js'
 import { registerSchema, loginSchema } from './auth.schema.js'
-import type { FastifyInstance, FastifyPluginOptions } from 'fastify'
+import type { FastifyInstance } from 'fastify'
 import { UnauthorizedError } from '../../utils/errors.js'
 import { isProduction } from '../../config.js'
 import { authenticate } from '../../plugins/authenticate.js'
 
-export const authRoutes = async (fastify: FastifyInstance, opts: FastifyPluginOptions) => {
+export const authRoutes = async (fastify: FastifyInstance) => {
     fastify.post<{ Body: registerSchemaType}>('/register', { schema: { body: registerSchema }}, 
         async (request, reply) => {
             const { email, name, password } = request.body

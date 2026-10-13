@@ -1,5 +1,5 @@
 import 'fastify'
-import type { FastifyRequest, FastifyReply } from 'fastify'
+import type { FastifyRequest } from 'fastify'
 import { verifyToken } from '../utils/jwt.js'
 import { UnauthorizedError } from '../utils/errors.js'
 
@@ -11,7 +11,7 @@ declare module 'fastify' {
     }
 }
 
-export const authenticate = async (request: FastifyRequest, reply: FastifyReply) => {
+export const authenticate = async (request: FastifyRequest) => {
     const token = request.headers.authorization?.replace("Bearer ", "")
     if (!token) {
         throw new UnauthorizedError()
