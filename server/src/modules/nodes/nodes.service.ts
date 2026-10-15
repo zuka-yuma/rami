@@ -76,7 +76,7 @@ export async function createNode(userId: string, data: createNodeSchemaType) {
 
 export async function updateNode(userId: string, nodeId: string, data: updateNodeSchemaType) {
     try {
-        await prisma.$transaction(async (prisma) => {
+        return await prisma.$transaction(async (prisma) => {
             const updateDatas: Prisma.NodeUpdateInput = {}
             if (data.title !== undefined) {
                 updateDatas.title = data.title
