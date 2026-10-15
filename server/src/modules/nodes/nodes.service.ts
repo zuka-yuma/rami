@@ -45,9 +45,9 @@ export async function createNode(userId: string, data: createNodeSchemaType) {
             deadline: data.deadline ? new Date(data.deadline) : null,
             step: 0,
             sort: 0,
-            
+
         }
-        
+
         if (data.parentId !== undefined) {
             const parent = await prisma.node.findUnique({ where: { userId: userId, id: data.parentId } })
             if (!parent) {
@@ -61,8 +61,11 @@ export async function createNode(userId: string, data: createNodeSchemaType) {
                     createNodeData.sort = (taskMax._max.sort ?? 0) + 1
                 }
             }
+        } else {
+            const taskMax = await prisma.node.aggregate({ where: { userId: userId, parentId: null }, _max: { sort: true } })
+            createNodeData.sort = (taskMax._max.sort ?? 0) + 1
         }
-        
+
         const nodeData = await prisma.node.create({
             data: createNodeData
         })
@@ -90,7 +93,7 @@ export async function updateNode(userId: string, nodeId: string, data: updateNod
             if (data.collapse !== undefined) {
                 updateDatas.collapse = data.collapse
             }
-            const nodeData = await prisma.node.update({ 
+            const nodeData = await prisma.node.update({
                 where: { id: nodeId, userId },
                 data: updateDatas
             })
@@ -109,7 +112,7 @@ export async function updateNode(userId: string, nodeId: string, data: updateNod
 
 export async function deleteNode(userId: string, nodeId: string) {
     try {
-        const nodeData = await prisma.node.delete({ 
+        const nodeData = await prisma.node.delete({
             where: { id: nodeId, userId }
         })
         const oldParentId = nodeData.parentId
@@ -139,10 +142,10 @@ export async function moveNode(userId: string, nodeId: string, newParentId: stri
                         id: nodeId
                     }
                 })
-                await prisma.node.update({ 
-                    where: { 
+                await prisma.node.update({
+                    where: {
                         userId: userId,
-                        id: nodeId 
+                        id: nodeId
                     },
                     data: {
                         parentId: newParentId ?? null
@@ -164,7 +167,7 @@ export async function moveNode(userId: string, nodeId: string, newParentId: stri
                                 step: true
                             }
                         })
-                        await prisma.node.update({ 
+                        await prisma.node.update({
                             where: { userId: userId, id: nodeId },
                             data: {
                                 step: (maxStep._max.step ?? 0) + 1
@@ -179,7 +182,7 @@ export async function moveNode(userId: string, nodeId: string, newParentId: stri
                                 sort: true
                             }
                         })
-                        await prisma.node.update({ 
+                        await prisma.node.update({
                             where: { userId: userId, id: nodeId },
                             data: {
                                 sort: (maxSort._max.sort ?? 0) + 1
@@ -209,7 +212,7 @@ export async function moveNode(userId: string, nodeId: string, newParentId: stri
     } catch (error) {
         if (error instanceof ValidationError) {
             throw new ValidationError()
-        }        
+        }
         throw new NotFoundError()
     }
 }
