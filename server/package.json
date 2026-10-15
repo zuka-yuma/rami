@@ -11,7 +11,8 @@
     "lint": "eslint .",
     "db:migrate": "prisma migrate dev",
     "db:generate": "prisma generate",
-    "testdb:migrate": "DATABASE_URL=postgres://postgres:postgres@localhost:5432/test_rami prisma migrate deploy"
+    "testdb:migrate": "DATABASE_URL=postgres://postgres:postgres@localhost:5432/test_rami prisma migrate deploy",
+    "mcp:dev": "tsx --env-file=mcp.env src/mcp/index.ts"
   },
   "keywords": [],
   "author": "",
