@@ -1,7 +1,7 @@
 import { type Status, type Node, PrismaClient, Prisma } from '../../generated/prisma/index.js'
 import { PrismaPg } from '@prisma/adapter-pg'
 import { config } from '../../config.js'
-import type { createNodeSchemaType, updateNodeSchemaType } from './nodes.schema.js'
+import type { createNodeSchemaType, updateNodeSchemaType, listNodesSchemaType } from './nodes.schema.js'
 import { NotFoundError, ValidationError } from '../../utils/errors.js'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client'
 import { reindexSteps } from './step.service.js'
@@ -32,6 +32,19 @@ export async function propagateStatus(prisma: Prisma.TransactionClient, userId: 
 export async function getAll(userId: string) {
     const node = await prisma.node.findMany({ where: { userId } })
     return buildTree(node)
+}
+
+export async function listNodes(userId: string, filter: listNodesSchemaType) {
+    const where: Prisma.NodeWhereInput = {
+        userId
+    }
+    if (filter.status !== undefined) {
+        where.status = filter.status
+    }
+    if (filter.priority !== undefined) {
+        where.priority = filter.priority
+    }
+    return await prisma.node.findMany({ where })
 }
 
 export async function createNode(userId: string, data: createNodeSchemaType) {

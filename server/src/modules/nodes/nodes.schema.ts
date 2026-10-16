@@ -41,3 +41,9 @@ export const reorderSchema = Type.Object({
     orderedIds: Type.Array(Type.String())
 })
 export type reorderSchemaType = Static<typeof reorderSchema>
+
+export const listNodesSchema = Type.Object({
+  status: Type.Optional(Type.Enum(Status)),
+  priority: Type.Optional(Type.Enum(Priority))
+})
+export type listNodesSchemaType = Static<typeof listNodesSchema>

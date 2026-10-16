@@ -1,8 +1,8 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js"
-import { moveNode, deleteNode, updateNode, createNode, getAll } from "../../modules/nodes/nodes.service.js"
+import { moveNode, deleteNode, updateNode, createNode, getAll, listNodes } from "../../modules/nodes/nodes.service.js"
 import { getUserId } from "../userId.js"
 import { z } from "zod"
-import type { createNodeSchemaType, updateNodeSchemaType } from "../../modules/nodes/nodes.schema.js"
+import type { createNodeSchemaType, listNodesSchemaType, updateNodeSchemaType } from "../../modules/nodes/nodes.schema.js"
 import { Status, Priority, NodeType } from "../../generated/prisma/index.js"
 
 export const registerGetTree = (mcp: McpServer) => {
@@ -172,6 +172,41 @@ export const registerMoveNode = (mcp: McpServer) => {
           {
             type: "text",
             text: `${JSON.stringify(node)}`,
+          },
+        ],
+      }
+    }
+  )
+}
+
+
+const listNodesSchema = {
+  priority: z.enum(Priority).optional(),
+  status: z.enum(Status).optional(),
+}
+
+export const registerListNodes = (mcp: McpServer) => {
+  mcp.registerTool(
+    "list_nodes",
+    {
+      title: 'ノード検索',
+      description: '条件に合うノードをフラットな配列(階層なし)で返す。status / priority を指定すると絞り込み、両方省略すると全ノードを返す。絞り込むと親が除外されて子だけが残ることがあるため、結果から親子関係は読み取れない。ツリーの構造や各ノードの階層位置を知りたい場合は get_tree を使う。「進行中のタスクを挙げて」「優先度が高いものは何か」のような横断的な問いに向く。',
+      annotations: {
+        openWorldHint: false,
+        readOnlyHint: true,
+      },
+      inputSchema: listNodesSchema,
+    },
+    async ({ priority, status }) => {
+      const filter: listNodesSchemaType = {}
+      if (priority !== undefined) filter.priority = priority
+      if (status !== undefined) filter.status = status
+      const list = await listNodes(getUserId(), filter)
+      return {
+        content: [
+          {
+            type: "text",
+            text: `${JSON.stringify(list)}`,
           },
         ],
       }
