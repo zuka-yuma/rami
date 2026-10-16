@@ -3,6 +3,7 @@ import { moveNode, deleteNode, updateNode, createNode, getAll } from "../../modu
 import { getUserId } from "../userId.js"
 import { z } from "zod"
 import type { createNodeSchemaType, updateNodeSchemaType } from "../../modules/nodes/nodes.schema.js"
+import { Status, Priority, NodeType } from "../../generated/prisma/index.js"
 
 export const registerGetTree = (mcp: McpServer) => {
   mcp.registerTool(
@@ -33,9 +34,9 @@ const createNodeSchema = {
   data: z.object({
     parentId: z.string().optional(),
     deadline: z.string().optional(),
-    priority: z.enum(["high", "medium", "low"]),
+    priority: z.enum(Priority),
     title: z.string(),
-    nodeType: z.enum(["task", "phase"])
+    nodeType: z.enum(NodeType)
   })
 }
 
@@ -76,9 +77,9 @@ const updateNodeSchema = {
   nodeId: z.string(),
   data: z.object({
     deadline: z.string().optional(),
-    priority: z.enum(["high", "medium", "low"]).optional(),
+    priority: z.enum(Priority).optional(),
     title: z.string().optional(),
-    status: z.enum(["todo", "in_progress", "done"]).optional(),
+    status: z.enum(Status).optional(),
     collapse: z.boolean().optional()
   })
 }
@@ -165,12 +166,12 @@ export const registerMoveNode = (mcp: McpServer) => {
       inputSchema: moveNodeSchema,
     },
     async ({ nodeId, newParentId }) => {
-      await moveNode(getUserId(), nodeId, newParentId)
+      const node = await moveNode(getUserId(), nodeId, newParentId)
       return {
         content: [
           {
             type: "text",
-            text: "moved",
+            text: `${JSON.stringify(node)}`,
           },
         ],
       }

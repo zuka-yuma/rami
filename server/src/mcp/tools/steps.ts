@@ -2,10 +2,11 @@ import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js"
 import { getUserId } from "../userId.js"
 import { z } from "zod"
 import { toggleType, addSteps, reorderSteps, reorderNodes } from "../../modules/nodes/step.service.js"
+import { NodeType} from "../../generated/prisma/index.js"
 
 const toggleTypeSchema = {
   nodeId: z.string(),
-  nodeType: z.enum(["task", "phase"])
+  nodeType: z.enum(NodeType)
 }
 
 export const registerToggleType = (mcp: McpServer) => {
@@ -38,7 +39,7 @@ const addStepsSchema = {
   parentId: z.string(),
   data: z.array(z.object({
     title: z.string(),
-    nodeType: z.enum(["task", "phase"])
+    nodeType: z.enum(NodeType)
   }))
 }
 
