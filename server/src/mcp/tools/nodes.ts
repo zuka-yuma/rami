@@ -1,5 +1,5 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js"
-import { moveNode, deleteNode, updateNode, createNode, getAll, listNodes } from "../../modules/nodes/nodes.service.js"
+import { moveNode, deleteNode, updateNode, createNode, getAll, listNodes, duplicateNode } from "../../modules/nodes/nodes.service.js"
 import { getUserId } from "../userId.js"
 import { z } from "zod"
 import type { createNodeSchemaType, listNodesSchemaType, updateNodeSchemaType } from "../../modules/nodes/nodes.schema.js"
@@ -207,6 +207,38 @@ export const registerListNodes = (mcp: McpServer) => {
           {
             type: "text",
             text: `${JSON.stringify(list)}`,
+          },
+        ],
+      }
+    }
+  )
+}
+
+const duplicateNodeSchema = {
+  nodeId: z.string(),
+  includeChildren: z.boolean().optional().default(true),
+  resetStatus: z.boolean().optional().default(true),
+}
+
+export const registerDuplicateNode = (mcp: McpServer) => {
+  mcp.registerTool(
+    "duplicate_node",
+    {
+      title: 'ノード複製',
+      description: '指定ノードを複製し、元ノードと同じ親の直後に挿入する。複製されたノードを返す。includeChildren(既定 true)が true なら子ツリーごと再帰的に複製し、false なら指定ノードだけを複製する。resetStatus(既定 true)が true なら複製側の status をすべて todo に戻し、false なら元の status を引き継ぐ。タイトルには「のコピー」が付く(複製の起点のみ。子には付かない)。deadline は引き継がれず常にクリアされるため、必要なら複製後に update_node で設定する。複製により同じ親の兄弟の並び順(sort または step)は 1 から振り直される。',
+      annotations: {
+        openWorldHint: false,
+        readOnlyHint: false,
+      },
+      inputSchema: duplicateNodeSchema,
+    },
+    async ({ nodeId, includeChildren, resetStatus }) => {
+      const node = await duplicateNode(getUserId(), nodeId, includeChildren, resetStatus)
+      return {
+        content: [
+          {
+            type: "text",
+            text: `${JSON.stringify(node)}`,
           },
         ],
       }
