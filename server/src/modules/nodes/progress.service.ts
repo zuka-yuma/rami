@@ -1,11 +1,19 @@
 import { PrismaClient } from '../../generated/prisma/index.js'
 import { PrismaPg } from '@prisma/adapter-pg'
 import { config } from '../../config.js'
+import { NotFoundError } from '../../utils/errors.js'
 
 const adapter = new PrismaPg({ connectionString: config.databaseURL })
 const prisma = new PrismaClient({ adapter })
 
 export async function getProgress(userId: string, parentId: string | null = null) {
+  const parentType = parentId === null ? { nodeType: "task"} : await prisma.node.findUnique({
+    where: { userId, id: parentId },
+    select: {
+      nodeType: true
+    }
+  })
+  if (parentType === null) throw new NotFoundError()
   const nodes = await prisma.node.findMany({
     where: { userId, parentId },
     select: {
@@ -13,7 +21,7 @@ export async function getProgress(userId: string, parentId: string | null = null
       title: true,
       status: true
     },
-    orderBy: parentId === null ? {
+    orderBy: parentId === null || parentType.nodeType === "task" ? {
       sort: 'asc'
     } : {
       step: 'asc'
