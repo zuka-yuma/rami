@@ -1,6 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js"
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { registerGetTree, registerCreateNode, registerDeleteNode, registerMoveNode, registerUpdateNode } from "./tools/nodes.js"
+import { registerToggleType, registerAddSteps, registerReorderNodes, registerReorderSteps } from "./tools/steps.js"
 
 const mcp = new McpServer({
   name: "minimal-mcp-server",
@@ -14,6 +15,10 @@ async function main() {
   registerDeleteNode(mcp)
   registerMoveNode(mcp)
   registerUpdateNode(mcp)
+  registerToggleType(mcp)
+  registerAddSteps(mcp)
+  registerReorderNodes(mcp)
+  registerReorderSteps(mcp)
   await mcp.connect(transport)
 }
 
