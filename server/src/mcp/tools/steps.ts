@@ -92,7 +92,6 @@ export const registerReorderNodes = (mcp: McpServer) => {
       inputSchema: reorderNodeSchema,
     },
     async ({ parentId, orderedIds }) => {
-      if (parentId === null) parentId = "null"
       await reorderNodes(getUserId(), parentId, orderedIds)
       return {
         content: [

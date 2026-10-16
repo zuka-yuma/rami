@@ -57,16 +57,15 @@ export async function reorderSteps(userId: string, parentId: string, orderedIds:
 
 }
 
-export async function reorderNodes(userId: string, parentId: string, orderedIds: string[]) {
+export async function reorderNodes(userId: string, parentId: string | null, orderedIds: string[]) {
     try {
         await prisma.$transaction(async (prisma) => {
-            const pid = parentId === "null" ? null : parentId
-            const children = await prisma.node.findMany({ where: { userId, parentId: pid } })
+            const children = await prisma.node.findMany({ where: { userId, parentId: parentId } })
             const childIds = new Set(children.map(c => c.id))
             if(orderedIds.length !== childIds.size || orderedIds.some(id => !childIds.has(id))) {
                 throw new ValidationError()
             }
-            for (const [i, id] of orderedIds. entries()) {
+            for (const [i, id] of orderedIds.entries()) {
                 await prisma.node.update({
                     where: {
                         id: id,

@@ -6,7 +6,7 @@ import { addSteps, reorderNodes, reorderSteps, toggleType } from "./step.service
 
 
 export const nodesRoutes = async (fastify: FastifyInstance) => {
-    fastify.get('', 
+    fastify.get('',
         { preHandler: [authenticate] },
         async (request, reply) => {
             const userId = request.user.userId
@@ -24,10 +24,10 @@ export const nodesRoutes = async (fastify: FastifyInstance) => {
         }
     )
 
-    fastify.post<{ Params: { parentId: string }, Body: reorderSchemaType }>('/:parentId/reorder-nodes', 
+    fastify.post<{ Params: { parentId: string }, Body: reorderSchemaType }>('/:parentId/reorder-nodes',
         { preHandler: [authenticate], schema: { body: reorderSchema } },
         async (request, reply) => {
-            const parentId = request.params.parentId
+            const parentId = request.params.parentId === "null" ? null : request.params.parentId
             const userId = request.user.userId
             await reorderNodes(userId, parentId, request.body.orderedIds)
             reply.status(200).send()
@@ -84,7 +84,7 @@ export const nodesRoutes = async (fastify: FastifyInstance) => {
             reply.status(200).send()
         }
     )
-    
+
     fastify.patch<{ Params: { parentId: string }, Body: reorderSchemaType }>('/:parentId/reorder-steps',
         { preHandler: [authenticate], schema: {body: reorderSchema} },
         async (request, reply) => {
