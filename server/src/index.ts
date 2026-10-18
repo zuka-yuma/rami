@@ -9,11 +9,8 @@ import type { TypeBoxTypeProvider } from '@fastify/type-provider-typebox'
 import { nodesRoutes } from './modules/nodes/nodes.routes.js'
 import { exportRoutes } from './modules/export/export.routes.js'
 import { importRoutes } from './modules/import/import.routes.js'
-import { authenticateMcp } from "./plugins/authenticateApiToken.js"
 import * as Sentry from "@sentry/node"
-import { createMcpServer } from './mcp/server.js'
-import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js'
-import type { Transport } from '@modelcontextprotocol/sdk/shared/transport.js'
+import { mcpRoutes } from './mcp/mcp.routes.js'
 
 const server = fastify().withTypeProvider<TypeBoxTypeProvider>()
 
@@ -23,13 +20,13 @@ Sentry.init({
 })
 
 server.setErrorHandler((error: FastifyError, request, reply) => {
-    if (error instanceof AppError) {
-        reply.status(error.statuscode).send({ status:error.message, timeStamp: Date.now()})
-    } else if (error.statusCode !== undefined) {
-        reply.status(error.statusCode).send({ status: error.message, timeStamp: Date.now() })
-    } else {
-        reply.status(500).send({ status: "Server Error", timeStamp: Date.now()})
-    }
+  if (error instanceof AppError) {
+    reply.status(error.statuscode).send({ status: error.message, timeStamp: Date.now() })
+  } else if (error.statusCode !== undefined) {
+    reply.status(error.statusCode).send({ status: error.message, timeStamp: Date.now() })
+  } else {
+    reply.status(500).send({ status: "Server Error", timeStamp: Date.now()})
+  }
 })
 
 server.register(cors, {
@@ -57,6 +54,8 @@ server.register(importRoutes, {
     prefix: '/api/import'
 })
 
+server.register(mcpRoutes, {})
+
 server.get('/api/health', async (request, reply) => {
     reply.status(200).send({ status:"ok", timeStamp: Date.now()})
 })
@@ -64,13 +63,4 @@ server.get('/api/health', async (request, reply) => {
 server.listen({ port: config.port, host: '0.0.0.0' }, (err, address) => {
     if (err) throw err
     server.log.info(`server listening on ${address}`)
-})
-
-server.post('/mcp', { preHandler: [authenticateMcp] }, async (request, reply) => {
-  const mcp = createMcpServer()
-  const transport = new StreamableHTTPServerTransport()
-  await mcp.connect(transport as Transport)
-  reply.hijack()
-  await transport.handleRequest(request.raw, reply.raw, request.body)
-  await transport.close()
 })
