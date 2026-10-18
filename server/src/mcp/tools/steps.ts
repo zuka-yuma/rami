@@ -21,8 +21,8 @@ export const registerToggleType = (mcp: McpServer) => {
       },
       inputSchema: toggleTypeSchema,
     },
-    async ({ nodeId, nodeType }) => {
-      await toggleType(getUserId(), nodeId, nodeType)
+    async ({ nodeId, nodeType }, extra) => {
+      await toggleType(getUserId(extra.authInfo), nodeId, nodeType)
       return {
         content: [
           {
@@ -55,8 +55,8 @@ export const registerAddSteps = (mcp: McpServer) => {
       },
       inputSchema: addStepsSchema,
     },
-    async ({ parentId, data }) => {
-      const node = await addSteps(getUserId(), parentId, data)
+    async ({ parentId, data }, extra) => {
+      const node = await addSteps(getUserId(extra.authInfo), parentId, data)
       return {
         content: [
           {
@@ -91,8 +91,8 @@ export const registerReorderNodes = (mcp: McpServer) => {
       },
       inputSchema: reorderNodeSchema,
     },
-    async ({ parentId, orderedIds }) => {
-      await reorderNodes(getUserId(), parentId, orderedIds)
+    async ({ parentId, orderedIds }, extra) => {
+      await reorderNodes(getUserId(extra.authInfo), parentId, orderedIds)
       return {
         content: [
           {
@@ -117,8 +117,8 @@ export const registerReorderSteps = (mcp: McpServer) => {
       },
       inputSchema: reorderStepSchema,
     },
-    async ({ parentId, orderedIds }) => {
-      await reorderSteps(getUserId(), parentId, orderedIds)
+    async ({ parentId, orderedIds }, extra) => {
+      await reorderSteps(getUserId(extra.authInfo), parentId, orderedIds)
       return {
         content: [
           {

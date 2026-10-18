@@ -19,8 +19,8 @@ export const registerGetProgress = (mcp: McpServer) => {
       },
       inputSchema: getProgressSchema,
     },
-    async ({ nodeId }) => {
-      const data = await getProgress(getUserId(), nodeId)
+    async ({ nodeId }, extra) => {
+      const data = await getProgress(getUserId(extra.authInfo), nodeId)
       return {
         content: [
           {

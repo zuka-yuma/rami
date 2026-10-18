@@ -16,8 +16,8 @@ export const registerGetTree = (mcp: McpServer) => {
         readOnlyHint: true,
       },
     },
-    async () => {
-      const tree = await getAll(getUserId())
+    async (extra) => {
+      const tree = await getAll(getUserId(extra.authInfo))
       return {
         content: [
           {
@@ -52,7 +52,7 @@ export const registerCreateNode = (mcp: McpServer) => {
       },
       inputSchema: createNodeSchema,
     },
-    async ({ data }) => {
+    async ({ data }, extra) => {
       const new_data: createNodeSchemaType = {
         priority: data.priority,
         title: data.title,
@@ -60,7 +60,7 @@ export const registerCreateNode = (mcp: McpServer) => {
       }
       if (data.parentId !== undefined) new_data.parentId = data.parentId
       if (data.deadline !== undefined) new_data.deadline = data.deadline
-      const node = await createNode(getUserId(), new_data)
+      const node = await createNode(getUserId(extra.authInfo), new_data)
       return {
         content: [
           {
@@ -96,14 +96,14 @@ export const registerUpdateNode = (mcp: McpServer) => {
       },
       inputSchema: updateNodeSchema,
     },
-    async ({ data, nodeId }) => {
+    async ({ data, nodeId }, extra) => {
       const new_data: updateNodeSchemaType = {}
       if (data.deadline !== undefined) new_data.deadline = data.deadline
       if (data.priority !== undefined) new_data.priority = data.priority
       if (data.title !== undefined) new_data.title = data.title
       if (data.status !== undefined) new_data.status = data.status
       if (data.collapse !== undefined) new_data.collapse = data.collapse
-      const node = await updateNode(getUserId(), nodeId, new_data)
+      const node = await updateNode(getUserId(extra.authInfo), nodeId, new_data)
       return {
         content: [
           {
@@ -133,8 +133,8 @@ export const registerDeleteNode = (mcp: McpServer) => {
       },
       inputSchema: deleteNodeSchema,
     },
-    async ({ nodeId }) => {
-      await deleteNode(getUserId(), nodeId)
+    async ({ nodeId }, extra) => {
+      await deleteNode(getUserId(extra.authInfo), nodeId)
       return {
         content: [
           {
@@ -165,8 +165,8 @@ export const registerMoveNode = (mcp: McpServer) => {
       },
       inputSchema: moveNodeSchema,
     },
-    async ({ nodeId, newParentId }) => {
-      const node = await moveNode(getUserId(), nodeId, newParentId)
+    async ({ nodeId, newParentId }, extra) => {
+      const node = await moveNode(getUserId(extra.authInfo), nodeId, newParentId)
       return {
         content: [
           {
@@ -197,11 +197,11 @@ export const registerListNodes = (mcp: McpServer) => {
       },
       inputSchema: listNodesSchema,
     },
-    async ({ priority, status }) => {
+    async ({ priority, status }, extra) => {
       const filter: listNodesSchemaType = {}
       if (priority !== undefined) filter.priority = priority
       if (status !== undefined) filter.status = status
-      const list = await listNodes(getUserId(), filter)
+      const list = await listNodes(getUserId(extra.authInfo), filter)
       return {
         content: [
           {
@@ -232,8 +232,8 @@ export const registerDuplicateNode = (mcp: McpServer) => {
       },
       inputSchema: duplicateNodeSchema,
     },
-    async ({ nodeId, includeChildren, resetStatus }) => {
-      const node = await duplicateNode(getUserId(), nodeId, includeChildren, resetStatus)
+    async ({ nodeId, includeChildren, resetStatus }, extra) => {
+      const node = await duplicateNode(getUserId(extra.authInfo), nodeId, includeChildren, resetStatus)
       return {
         content: [
           {
