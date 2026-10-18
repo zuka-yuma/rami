@@ -21,7 +21,7 @@
   "dependencies": {
     "@fastify/cookie": "^11.0.2",
     "@fastify/cors": "^11.2.0",
-    "@fastify/rate-limit": "^11.2.0",
+    "@fastify/rate-limit": "^11.2.1",
     "@fastify/type-provider-typebox": "^6.1.0",
     "@modelcontextprotocol/sdk": "^1.32.1",
     "@prisma/adapter-pg": "^7.8.0",
