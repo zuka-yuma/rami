@@ -1,4 +1,5 @@
 import fastify from 'fastify'
+import type { FastifyError } from 'fastify'
 import cors from '@fastify/cors'
 import cookie from '@fastify/cookie'
 import { config } from './config.js'
@@ -21,9 +22,11 @@ Sentry.init({
     tracesSampleRate: 1.0,
 })
 
-server.setErrorHandler((error, request, reply) => {
+server.setErrorHandler((error: FastifyError, request, reply) => {
     if (error instanceof AppError) {
         reply.status(error.statuscode).send({ status:error.message, timeStamp: Date.now()})
+    } else if (error.statusCode !== undefined) {
+        reply.status(error.statusCode).send({ status: error.message, timeStamp: Date.now() })
     } else {
         reply.status(500).send({ status: "Server Error", timeStamp: Date.now()})
     }
