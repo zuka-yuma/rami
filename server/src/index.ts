@@ -8,6 +8,7 @@ import type { TypeBoxTypeProvider } from '@fastify/type-provider-typebox'
 import { nodesRoutes } from './modules/nodes/nodes.routes.js'
 import { exportRoutes } from './modules/export/export.routes.js'
 import { importRoutes } from './modules/import/import.routes.js'
+import { authenticateMcp } from "./plugins/authenticateApiToken.js"
 import * as Sentry from "@sentry/node"
 
 const server = fastify().withTypeProvider<TypeBoxTypeProvider>()
@@ -57,4 +58,8 @@ server.get('/api/health', async (request, reply) => {
 server.listen({ port: config.port, host: '0.0.0.0' }, (err, address) => {
     if (err) throw err
     server.log.info(`server listening on ${address}`)
+})
+
+server.post('/mcp', { preHandler: [authenticateMcp] }, async (request, reply) => {
+  reply.status(200).send(request.raw.auth)
 })
