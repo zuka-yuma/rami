@@ -2,6 +2,7 @@ import fastify from 'fastify'
 import type { FastifyError } from 'fastify'
 import cors from '@fastify/cors'
 import cookie from '@fastify/cookie'
+import rateLimit from '@fastify/rate-limit'
 import { config } from './config.js'
 import { AppError } from './utils/errors.js'
 import { authRoutes } from './modules/auth/auth.routes.js'
@@ -53,6 +54,10 @@ server.register(exportRoutes, {
 server.register(importRoutes, {
     prefix: '/api/import'
 })
+
+// 既定は緩め。厳しくしたいルート（/mcp など）が config.rateLimit で個別に上書きする。
+// mcpRoutes より前に登録すること（onRoute フックは後から追加されたルートにしか発火しない）
+server.register(rateLimit, {})
 
 server.register(mcpRoutes, {})
 
