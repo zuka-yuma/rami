@@ -10,6 +10,9 @@ import { exportRoutes } from './modules/export/export.routes.js'
 import { importRoutes } from './modules/import/import.routes.js'
 import { authenticateMcp } from "./plugins/authenticateApiToken.js"
 import * as Sentry from "@sentry/node"
+import { createMcpServer } from './mcp/server.js'
+import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js'
+import type { Transport } from '@modelcontextprotocol/sdk/shared/transport.js'
 
 const server = fastify().withTypeProvider<TypeBoxTypeProvider>()
 
@@ -61,5 +64,10 @@ server.listen({ port: config.port, host: '0.0.0.0' }, (err, address) => {
 })
 
 server.post('/mcp', { preHandler: [authenticateMcp] }, async (request, reply) => {
-  reply.status(200).send(request.raw.auth)
+  const mcp = createMcpServer()
+  const transport = new StreamableHTTPServerTransport()
+  await mcp.connect(transport as Transport)
+  reply.hijack()
+  await transport.handleRequest(request.raw, reply.raw, request.body)
+  await transport.close()
 })
