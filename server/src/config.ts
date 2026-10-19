@@ -1,5 +1,5 @@
 import dotenv from "dotenv";
-dotenv.config();
+dotenv.config({ quiet: true });
 
 const jwtSecret = process.env.JWT_SECRET
 const port = process.env.PORT
