@@ -49,4 +49,3 @@ services:
 volumes:
   db:
   backup:
-  jwt_secret:
