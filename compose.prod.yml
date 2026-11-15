@@ -19,8 +19,6 @@ services:
       - "3001:3001"
     depends_on:
       - db
-    volumes:
-      - jwt_secret:/data
 
   client:
     build:
@@ -51,4 +49,3 @@ services:
 volumes:
   db:
   backup:
-  jwt_secret:
