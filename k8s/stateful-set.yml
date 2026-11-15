@@ -23,9 +23,15 @@ spec:
                   name: postgresql-secrets
                   key: POSTGRES_PASSWORD
             - name: POSTGRES_USER
-              value: postgres
+              valueFrom:
+                configMapKeyRef:
+                  name: rami-config
+                  key: POSTGRES_USER
             - name: POSTGRES_DB
-              value: rami
+              valueFrom:
+                configMapKeyRef:
+                  name: rami-config
+                  key: POSTGRES_DB
             - name: PGDATA
               value: /var/lib/postgresql/data/rami
           ports:
