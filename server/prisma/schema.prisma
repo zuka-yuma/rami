@@ -17,7 +17,7 @@ model User {
   email    String   @unique
   name     String
   password String
-  createAt DateTime @default(now()) @map("created_at")
+  createdAt DateTime @default(now()) @map("created_at")
   updateAt DateTime @updatedAt @map("updated_at")
 
   node     Node[]
@@ -48,7 +48,7 @@ model Node {
   // 折りたたみ
   collapse Boolean  @default(false)
   // 日時
-  createAt DateTime @default(now()) @map("created_at")
+  createdAt DateTime @default(now()) @map("created_at")
   updateAt DateTime @updatedAt @map("updated_at")
 
   children Node[]   @relation("NodeToNode")
@@ -68,7 +68,7 @@ model Token {
   user     User     @relation(fields: [userId], references:[id], onDelete: Cascade)
 
   limit    DateTime
-  createAt DateTime @default(now()) @map("created_at")
+  createdAt DateTime @default(now()) @map("created_at")
 
   @@map("refresh_tokens")
 }
@@ -85,7 +85,7 @@ model ApiToken {
   lastUsedAt DateTime? @map("last_used_at")
   revokedAt  DateTime? @map("revoked_at")
   expiresAt  DateTime? @map("expires_at")
-  createAt   DateTime  @default(now()) @map("created_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
 
   @@index([userId])
   @@map("api_tokens")

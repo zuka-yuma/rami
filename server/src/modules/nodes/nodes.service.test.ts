@@ -15,7 +15,7 @@ const base = (): Node => ({
   sort: 0,
   step: 0,
   collapse: false,
-  createAt: new Date('2026-01-01T00:00:00Z'),
+  createdAt: new Date('2026-01-01T00:00:00Z'),
   updateAt: new Date('2026-01-01T00:00:00Z')
 })
 const node = (overrides: Partial<Node> = {}): Node => ({...base(), ...overrides})
