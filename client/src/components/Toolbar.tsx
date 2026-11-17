@@ -2,8 +2,8 @@
 // ルートにタスク/フェーズを追加するボタンと、ユーザー情報・ログアウトボタンを表示。
 
 import { useAddNode } from "../contexts/AddNodeContext"
-import { useAuth } from "../contexts/AuthContext"
 import { ExportMenu } from "./ExportMenu"
+import { UserMenu } from "./UserMenu"
 import { useTreeContext } from "../contexts/TreeContext"
 import { useDisplayMode } from "../contexts/DisplayModeContext"
 
@@ -11,11 +11,11 @@ interface Props {
     hideDone: boolean
     onToggleHideDone: () => void
     onToggleSidebar: () => void
+    onOpenTokens: () => void
 }
 
-export default function Toolbar({ hideDone, onToggleHideDone, onToggleSidebar }: Props) {
+export default function Toolbar({ hideDone, onToggleHideDone, onToggleSidebar, onOpenTokens }: Props) {
     const openAdd = useAddNode()
-    const { user, logout } = useAuth()
     const { refetch } = useTreeContext()
     const { displayMode, setDisplayMode } = useDisplayMode()
 
@@ -71,14 +71,7 @@ export default function Toolbar({ hideDone, onToggleHideDone, onToggleSidebar }:
                 }} />
             </div>
             <div className="flex items-center gap-2 shrink-0 text-sm">
-                <span className="hidden sm:inline text-slate-400">{user?.name}</span>
-                <button
-                    type="button"
-                    onClick={logout}
-                    className="whitespace-nowrap px-2 py-1 bg-slate-700 text-slate-200 rounded hover:bg-slate-600"
-                >
-                    ログアウト
-                </button>
+                <UserMenu onOpenTokens={onOpenTokens} />
             </div>
         </div>
     )

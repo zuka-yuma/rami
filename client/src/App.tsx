@@ -6,6 +6,7 @@ import { DisplayModeProvider } from './contexts/DisplayModeContext'
 import TreeView from './components/TreeView'
 import Toolbar from './components/Toolbar'
 import Sidebar from './components/Sidebar'
+import { ApiTokenModal } from './components/ApiTokenModal'
 import { Toaster } from 'react-hot-toast'
 import { useState } from 'react'
 
@@ -14,6 +15,7 @@ function App() {
   const [ hideDone, setHideDone ] = useState<boolean>(false)
   const [ selectedRootId, setSelectedRootId ] = useState<string | null>(null)
   const [ sidebarOpen, setSidebarOpen ] = useState<boolean>(false)
+  const [ tokenModalOpen, setTokenModalOpen ] = useState<boolean>(false)
 
   if (loading) return (
     <div>
@@ -37,6 +39,7 @@ function App() {
           hideDone={hideDone}
           onToggleHideDone={() => setHideDone(v => !v)}
           onToggleSidebar={() => setSidebarOpen(v => !v)}
+          onOpenTokens={() => setTokenModalOpen(true)}
         />
         <div className="flex flex-1 min-h-0">
           <Sidebar
@@ -52,6 +55,16 @@ function App() {
           </main>
         </div>
       </div>
+      {/* TODO(Phase 7): tokens / issuedToken / onIssue / onRevoke に実データを配線する。
+          /api/tokens 系のエンドポイントはサーバー側に未実装。 */}
+      <ApiTokenModal
+        open={tokenModalOpen}
+        onClose={() => setTokenModalOpen(false)}
+        tokens={[]}
+        issuedToken={null}
+        onIssue={() => {}}
+        onRevoke={() => {}}
+      />
       </DisplayModeProvider>
       </AddNodeProvider>
     </TreeProvider>
