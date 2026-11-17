@@ -57,3 +57,48 @@ export async function verifyApiToken(plain: string) {
   }
   return apiToken.userId
 }
+
+export async function listApiTokens(userId: string) {
+  const apiTokens = await prisma.apiToken.findMany({
+    where: {
+      userId
+    },
+    select: {
+      id: true,
+      name: true,
+      createdAt: true,
+      lastUsedAt: true,
+      revokedAt: true
+    },
+    orderBy: {
+      createdAt: 'desc'
+    }
+  })
+  return apiTokens
+}
+
+export async function revokeApiToken(userId: string, id: string) {
+  const updates = await prisma.apiToken.updateMany({
+    where: {
+      id,
+      userId,
+      revokedAt: null
+    },
+    data: {
+      revokedAt: new Date()
+    }
+  })
+  if (updates.count === 0) {
+    const runningApiToken = await prisma.apiToken.findFirst({
+      where: {
+        id,
+        userId
+      },
+      select: {
+        id: true
+      }
+    })
+    return (runningApiToken === null ? 0 : 1)
+  }
+  return updates.count
+}

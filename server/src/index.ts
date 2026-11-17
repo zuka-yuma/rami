@@ -12,6 +12,7 @@ import { exportRoutes } from './modules/export/export.routes.js'
 import { importRoutes } from './modules/import/import.routes.js'
 import * as Sentry from "@sentry/node"
 import { mcpRoutes } from './mcp/mcp.routes.js'
+import { tokensRoutes } from './modules/tokens/tokens.routes.js'
 
 const server = fastify().withTypeProvider<TypeBoxTypeProvider>()
 
@@ -37,6 +38,10 @@ server.register(cors, {
 
 server.register(cookie, {
     secret: config.jwt.secret
+})
+
+server.register(tokensRoutes, {
+  prefix: '/api/tokens'
 })
 
 server.register(authRoutes, {
