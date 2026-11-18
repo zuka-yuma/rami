@@ -13,6 +13,7 @@ import { importRoutes } from './modules/import/import.routes.js'
 import * as Sentry from "@sentry/node"
 import { mcpRoutes } from './mcp/mcp.routes.js'
 import { tokensRoutes } from './modules/tokens/tokens.routes.js'
+import { webhookRoutes } from './modules/webhook/webhook.routes.js'
 
 const server = fastify().withTypeProvider<TypeBoxTypeProvider>()
 
@@ -64,6 +65,10 @@ server.register(exportRoutes, {
 
 server.register(importRoutes, {
     prefix: '/api/import'
+})
+
+server.register(webhookRoutes, {
+    prefix: '/api/webhook'
 })
 
 server.register(mcpRoutes, {})
