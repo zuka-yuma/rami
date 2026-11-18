@@ -25,7 +25,7 @@ export type TreeNode = Node & {
 }
 
 export type PhaseProgress = {
-    total: number 
+    total: number
     done: number
     current: TreeNode | null
     percentage: number
@@ -79,4 +79,12 @@ export type ApiTokenSummary = {
     lastUsedAt: string | null
     // 失効済みなら日時。監査のため行は消さず、一覧では既定で隠す
     revokedAt: string | null
+}
+
+export type IssueApiTokenInput = {
+  name: string
+}
+
+export type ApiToken = {
+  token: string
 }
