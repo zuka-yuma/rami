@@ -20,7 +20,14 @@ export const authRoutes = async (fastify: FastifyInstance) => {
         }
     )
 
-    fastify.post<{ Body: loginSchemaType}>('/login', { schema: { body: loginSchema }}, 
+    fastify.post<{ Body: loginSchemaType}>('/login', {
+        schema: { body: loginSchema },
+        config: {
+            // パスワード総当たりを止めるため、既定(1000回/分)より大幅に厳しくする。
+            // キーは既定の IP。/api/auth/login を公開するなら必須
+            rateLimit: { max: 10, timeWindow: "1 minute" }
+        }
+    }, 
         async (request, reply) => {
             const { email, password } = request.body
             const tokens: { atoken: string, rtoken: string} = await login(email, password)
