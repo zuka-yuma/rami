@@ -4,10 +4,27 @@ services:
     restart: always
     container_name: postgres
     env_file: ./.env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 5s
+      retries: 5
     volumes:
       - db:/var/lib/postgresql
     ports:
       - "5432:5432"
+
+  migrate:
+    build:
+      context: ./server
+      target: builder
+    container_name: migrate
+    env_file:
+      - ./.env
+      - ./server/.env
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ["npx", "prisma", "migrate", "deploy"]
 
   server:
     build: ./server
@@ -18,7 +35,8 @@ services:
     ports:
       - "3001:3001"
     depends_on:
-      - db
+      migrate:
+        condition: service_completed_successfully
 
   client:
     build:
@@ -42,7 +60,8 @@ services:
     env_file:
       - ./.env
     depends_on:
-      - db
+      migrate:
+        condition: service_completed_successfully
     volumes:
       - backup:/app/backup
 
