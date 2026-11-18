@@ -25,7 +25,7 @@ export type TreeNode = Node & {
 }
 
 export type PhaseProgress = {
-    total: number 
+    total: number
     done: number
     current: TreeNode | null
     percentage: number
@@ -71,3 +71,20 @@ export type NodeType = "task" | "phase"
 export type Status = "todo" | "in_progress" | "done"
 
 export type Priority = "high" | "medium" | "low"
+// API トークンの一覧表示用。平文のトークンは発行直後の1回しか返らないので含めない。
+export type ApiTokenSummary = {
+    id: string
+    name: string
+    createdAt: string
+    lastUsedAt: string | null
+    // 失効済みなら日時。監査のため行は消さず、一覧では既定で隠す
+    revokedAt: string | null
+}
+
+export type IssueApiTokenInput = {
+  name: string
+}
+
+export type ApiToken = {
+  token: string
+}

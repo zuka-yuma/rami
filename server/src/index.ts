@@ -12,6 +12,7 @@ import { exportRoutes } from './modules/export/export.routes.js'
 import { importRoutes } from './modules/import/import.routes.js'
 import * as Sentry from "@sentry/node"
 import { mcpRoutes } from './mcp/mcp.routes.js'
+import { tokensRoutes } from './modules/tokens/tokens.routes.js'
 
 const server = fastify().withTypeProvider<TypeBoxTypeProvider>()
 
@@ -39,6 +40,16 @@ server.register(cookie, {
     secret: config.jwt.secret
 })
 
+// 既定は緩め。厳しくしたいルート（/mcp、/api/auth/login など）が config.rateLimit で
+// 個別に上書きする。
+// onRoute フックは後から追加されたルートにしか発火しないため、
+// すべてのルート登録より前に置くこと（後ろに置くと、それ以前のルートが無制限になる）
+server.register(rateLimit, {})
+
+server.register(tokensRoutes, {
+  prefix: '/api/tokens'
+})
+
 server.register(authRoutes, {
     prefix: '/api/auth'
 })
@@ -54,10 +65,6 @@ server.register(exportRoutes, {
 server.register(importRoutes, {
     prefix: '/api/import'
 })
-
-// 既定は緩め。厳しくしたいルート（/mcp など）が config.rateLimit で個別に上書きする。
-// mcpRoutes より前に登録すること（onRoute フックは後から追加されたルートにしか発火しない）
-server.register(rateLimit, {})
 
 server.register(mcpRoutes, {})
 

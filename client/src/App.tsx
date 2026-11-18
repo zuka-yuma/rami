@@ -6,7 +6,10 @@ import { DisplayModeProvider } from './contexts/DisplayModeContext'
 import TreeView from './components/TreeView'
 import Toolbar from './components/Toolbar'
 import Sidebar from './components/Sidebar'
-import { Toaster } from 'react-hot-toast'
+import { ApiTokenModal } from './components/ApiTokenModal'
+import { issueApiToken, listApiTokens, revokeApiToken } from './api/tokens'
+import type { ApiTokenSummary } from './types'
+import toast, { Toaster } from 'react-hot-toast'
 import { useState } from 'react'
 
 function App() {
@@ -14,6 +17,58 @@ function App() {
   const [ hideDone, setHideDone ] = useState<boolean>(false)
   const [ selectedRootId, setSelectedRootId ] = useState<string | null>(null)
   const [ sidebarOpen, setSidebarOpen ] = useState<boolean>(false)
+  const [ tokenModalOpen, setTokenModalOpen ] = useState<boolean>(false)
+  const [ tokens, setTokens ] = useState<ApiTokenSummary[]>([])
+  const [ issuedToken, setIssuedToken ] = useState<string | null>(null)
+  const [ tokensLoading, setTokensLoading ] = useState<boolean>(false)
+
+  // 一覧はサーバーを正とする。発行・失効のあとは必ず取り直す
+  const loadTokens = async () => {
+    setTokensLoading(true)
+    try {
+      setTokens(await listApiTokens())
+    } catch (error) {
+      console.error(error)
+      toast.error('トークンの取得に失敗しました')
+    } finally {
+      setTokensLoading(false)
+    }
+  }
+
+  // 開くたびに平文を捨てる。残すと発行していないトークンが出ているように見える
+  const openTokens = () => {
+    setIssuedToken(null)
+    setTokenModalOpen(true)
+    void loadTokens()
+  }
+
+  const closeTokens = () => {
+    setTokenModalOpen(false)
+    setIssuedToken(null)
+  }
+
+  const handleIssue = async (name: string) => {
+    try {
+      const issued = await issueApiToken({ name })
+      setIssuedToken(issued.token)
+      await loadTokens()
+    } catch (error) {
+      console.error(error)
+      setIssuedToken(null)
+      toast.error('トークンの発行に失敗しました')
+    }
+  }
+
+  const handleRevoke = async (id: string) => {
+    try {
+      await revokeApiToken(id)
+      await loadTokens()
+      toast.success('失効しました')
+    } catch (error) {
+      console.error(error)
+      toast.error('失効に失敗しました')
+    }
+  }
 
   if (loading) return (
     <div>
@@ -37,6 +92,7 @@ function App() {
           hideDone={hideDone}
           onToggleHideDone={() => setHideDone(v => !v)}
           onToggleSidebar={() => setSidebarOpen(v => !v)}
+          onOpenTokens={openTokens}
         />
         <div className="flex flex-1 min-h-0">
           <Sidebar
@@ -52,6 +108,15 @@ function App() {
           </main>
         </div>
       </div>
+      <ApiTokenModal
+        open={tokenModalOpen}
+        onClose={closeTokens}
+        tokens={tokens}
+        issuedToken={issuedToken}
+        onIssue={(name) => void handleIssue(name)}
+        onRevoke={(id) => void handleRevoke(id)}
+        loading={tokensLoading}
+      />
       </DisplayModeProvider>
       </AddNodeProvider>
     </TreeProvider>
