@@ -1,0 +1,14 @@
+# 依存はイメージ内で npm install するので送らない
+node_modules
+
+# ビルド成果物はイメージ内で生成する
+dist
+
+# 機密値はビルド引数で渡すのでコンテキストに入れない
+.env
+*.env
+
+# その他
+.DS_Store
+Dockerfile
+Dockerfile.dev
