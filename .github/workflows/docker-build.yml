@@ -12,6 +12,7 @@ jobs:
       contents: read
       packages: write
     strategy:
+      fail-fast: false
       matrix:
         include:
           - stage: runner
@@ -38,7 +39,7 @@ jobs:
       uses: docker/metadata-action@v6
       with:
         images: ghcr.io/${{ github.repository_owner }}/${{ matrix.tag-name }}
-        flavor: suffix=-amd64
+        flavor: suffix=-amd64,latest=false
         tags: type=semver,pattern={{version}}
 
     - name: Build and push
@@ -58,6 +59,7 @@ jobs:
       contents: read
       packages: write
     strategy:
+      fail-fast: false
       matrix:
         include:
           - stage: runner
@@ -84,7 +86,7 @@ jobs:
       uses: docker/metadata-action@v6
       with:
         images: ghcr.io/${{ github.repository_owner }}/${{ matrix.tag-name }}
-        flavor: suffix=-arm64
+        flavor: suffix=-arm64,latest=false
         tags: type=semver,pattern={{version}}
 
     - name: Build and push
@@ -107,6 +109,7 @@ jobs:
       contents: read
       packages: write
     strategy:
+      fail-fast: false
       matrix:
         tag-name: [ rami-server, rami-migrate ]
 
@@ -124,6 +127,7 @@ jobs:
         with:
           images: ghcr.io/${{ github.repository_owner }}/${{ matrix.tag-name }}
           tags: type=semver,pattern={{version}}
+          flavor: latest=false
 
       - name: Merge manifests
         run: |
