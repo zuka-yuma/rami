@@ -1,0 +1,19 @@
+# 依存はイメージ内で npm ci するので送らない
+node_modules
+
+# ビルド成果物はイメージ内で生成する
+dist
+tsconfig.tsbuildinfo
+src/generated/prisma
+
+# 機密値は env / Secret で渡すのでコンテキストに入れない
+.env
+.env~
+*.env
+certs
+cookies.txt
+
+# その他
+.DS_Store
+Dockerfile
+Dockerfile.dev
