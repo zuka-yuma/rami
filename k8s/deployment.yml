@@ -16,7 +16,7 @@ spec:
     spec:
       initContainers:
         - name: migrate
-          image: ghcr.io/zuka-yuma/rami-server:1.0.0
+          image: ghcr.io/zuka-yuma/rami-migrate:1.1.0
           command: ['npx', 'prisma', 'migrate', 'deploy']
           env:
             - name: POSTGRES_USER
@@ -38,7 +38,7 @@ spec:
               value: postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgres:5432/$(POSTGRES_DB)
       containers:
         - name: server
-          image: ghcr.io/zuka-yuma/rami-server:1.0.0
+          image: ghcr.io/zuka-yuma/rami-server:1.1.0
           envFrom:
             - configMapRef:
                 name: rami-config
