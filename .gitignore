@@ -5,3 +5,4 @@ node_modules
 dist
 server/cookies.txt
 *.pem
+.DS_Store
