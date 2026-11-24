@@ -1,0 +1,16 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: rami
+  namespace: argocd
+spec:
+  destination:
+    namespace: default
+    server: https://kubernetes.default.svc
+  source:
+    path: k8s
+    repoURL: https://github.com/zuka-yuma/rami
+    targetRevision: HEAD
+  project: default
+  syncPolicy:
+    automated: null
