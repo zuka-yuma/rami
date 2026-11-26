@@ -13,4 +13,4 @@ spec:
     targetRevision: HEAD
   project: default
   syncPolicy:
-    automated: null
+    automated: {}
