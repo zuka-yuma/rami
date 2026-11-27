@@ -4,6 +4,8 @@ metadata:
   name: rami-config
   labels:
     app: rami
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
 data:
   # DB connection parts (shared by postgres and server)
   POSTGRES_USER: postgres

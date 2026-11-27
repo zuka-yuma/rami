@@ -4,6 +4,8 @@ metadata:
   name: server
   labels:
     app: server
+  annotations:
+    argocd.argoproj.io/sync-wave: "20"
 spec:
   replicas: 2
   selector:
@@ -14,28 +16,6 @@ spec:
       labels:
         app: server
     spec:
-      initContainers:
-        - name: migrate
-          image: ghcr.io/zuka-yuma/rami-migrate:1.1.0
-          command: ['npx', 'prisma', 'migrate', 'deploy']
-          env:
-            - name: POSTGRES_USER
-              valueFrom:
-                configMapKeyRef:
-                  name: rami-config
-                  key: POSTGRES_USER
-            - name: POSTGRES_DB
-              valueFrom:
-                configMapKeyRef:
-                  name: rami-config
-                  key: POSTGRES_DB
-            - name: POSTGRES_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: postgresql-secrets
-                  key: POSTGRES_PASSWORD
-            - name: DATABASE_URL
-              value: postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgres:5432/$(POSTGRES_DB)
       containers:
         - name: server
           image: ghcr.io/zuka-yuma/rami-server:1.1.0
