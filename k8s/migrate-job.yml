@@ -12,7 +12,7 @@ spec:
       restartPolicy: Never
       containers:
         - name: migrate
-          image: ghcr.io/zuka-yuma/rami-migrate:1.1.0
+          image: ghcr.io/zuka-yuma/rami-migrate:1.2.0
           command: ['npx', 'prisma', 'migrate', 'deploy']
           env:
             - name: POSTGRES_USER
