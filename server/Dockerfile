@@ -19,4 +19,4 @@ RUN npm ci --omit=dev --omit=optional --omit=peer
 
 COPY --from=builder /app/dist ./dist
 
-CMD ["npm", "start"]
+CMD ["node", "dist/index.js"]

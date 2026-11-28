@@ -16,6 +16,7 @@ import { tokensRoutes } from './modules/tokens/tokens.routes.js'
 import { webhookRoutes } from './modules/webhook/webhook.routes.js'
 
 const server = fastify().withTypeProvider<TypeBoxTypeProvider>()
+let isShuttingDown = false
 
 Sentry.init({
     dsn: process.env.SENTRY_DSN,
@@ -76,6 +77,23 @@ server.register(mcpRoutes, {})
 server.get('/api/health', async (request, reply) => {
     reply.status(200).send({ status:"ok", timeStamp: Date.now()})
 })
+
+async function shutdown() {
+  if (isShuttingDown) return
+  isShuttingDown = true
+
+  const forceExitTimer = setTimeout(() => {
+    process.exit(1)
+  }, 20_000)
+
+  await server.close()
+  await Sentry.close(2000)
+  clearTimeout(forceExitTimer)
+  process.exit(0)
+}
+
+process.on('SIGTERM', () => void shutdown())
+process.on('SIGINT', () => void shutdown())
 
 server.listen({ port: config.port, host: '0.0.0.0' }, (err, address) => {
     if (err) throw err
