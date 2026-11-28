@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: server
-          image: ghcr.io/zuka-yuma/rami-server:1.1.0
+          image: ghcr.io/zuka-yuma/rami-server:1.2.0
           envFrom:
             - configMapRef:
                 name: rami-config
